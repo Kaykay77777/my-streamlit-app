@@ -11,8 +11,9 @@ OPENED_WINE_FILE = "opened_wines.csv"
 
 os.makedirs("images", exist_ok=True)
 
+login_mode = None
 #ログイン機能あり=1
-login_mode = 1
+#login_mode = 1
 
 if login_mode == 1:
     # ユーザー名とパスワードの設定
@@ -87,7 +88,33 @@ if "selected_location" not in st.session_state:
     st.session_state.selected_location = None
 
 def display_wine_cellar():
+    st.markdown("""
+        <style>
+            .wine-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+                gap: 10px;
+            }
+            .wine-container {
+                text-align: center;
+                border: 1px solid #ccc;
+                padding: 10px;
+                border-radius: 5px;
+            }
+
+            /* スマホ向けの調整 */
+            @media (max-width: 768px) {
+                .wine-grid {
+                    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); /* スマホでは幅を縮小 */
+                }
+            }
+        </style>
+
+    """, unsafe_allow_html=True)
+        
     st.subheader('ワインセラー')
+    st.markdown('<div class="wine-grid">', unsafe_allow_html=True)
+
     for row in range(st.session_state.rows):
         cols = st.columns(st.session_state.bottles_per_row)
         for bottle in range(st.session_state.bottles_per_row):
