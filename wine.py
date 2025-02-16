@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from PIL import Image
+from PIL import Image, ExifTags
 import os
 
 # ページのレイアウトをワイドモードに変更
@@ -226,6 +226,25 @@ if st.session_state.selected_location:
                     image.load()  # 画像を完全に読み込む
                     image.verify()  # 破損していないかチェック
                     image = Image.open(wine_image).convert("RGB")  # verifyの後は再オープンが必要
+                    
+                    
+                    try:
+                        exif = image._getexif()
+                        if exif:
+                            for tag, value in exif.items():
+                                tag_name = ExifTags.TAGS.get(tag, tag)
+                                if tag_name == 'Orientation':
+                                    if value == 3:
+                                        image = image.rotate(180, expand=True)
+                                    elif value == 6:
+                                        image = image.rotate(270, expand=True)
+                                    elif value == 8:
+                                        image = image.rotate(90, expand=True)
+                                    break
+                    except (AttributeError, KeyError, IndexError):
+                        pass                 
+
+                    
                     image.save(image_path, format="JPEG", quality=85, optimize=True)
 
                     new_photos.append(image_path)
