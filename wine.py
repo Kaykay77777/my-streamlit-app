@@ -16,7 +16,9 @@ def save_client_secrets():
         "web": {
             "client_id": st.secrets["google_drive"]["client_id"],
             "client_secret": st.secrets["google_drive"]["client_secret"],
-            "redirect_uris": st.secrets["google_drive"]["redirect_uris"]
+            "redirect_uris": st.secrets["google_drive"]["redirect_uris"],
+            "auth_uri": st.secrets["google_drive"]["auth_uri"],  # auth_uri を追加
+            "token_uri": st.secrets["google_drive"]["token_uri"]   # token_uri を追加
         }
     }
     with open("client_secrets.json", "w") as f:
