@@ -15,7 +15,8 @@ def authenticate():
     gauth.LoadCredentialsFile("credentials.json")  # 保存された認証情報をロード
     
     if gauth.credentials is None:  # 初回認証
-        gauth.LocalWebserverAuth()
+        # Webサーバーを使わずに認証
+        gauth.CommandLineAuth()
     elif gauth.access_token_expired:  # アクセストークンが期限切れならリフレッシュ
         gauth.Refresh()
     else:
