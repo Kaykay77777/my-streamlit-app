@@ -24,6 +24,10 @@ def save_client_secrets():
     with open("client_secrets.json", "w") as f:
         json.dump(client_config, f)  # JSON ファイルを作成
 
+    # client_secrets.json の内容を確認 　確認用のため後で削除
+    with open("client_secrets.json", "r") as f:
+        print(json.load(f))  # 内容を出力
+
 # 認証設定
 def authenticate():
     save_client_secrets()  # `client_secrets.json` を作成
