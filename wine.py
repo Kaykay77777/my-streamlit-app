@@ -9,8 +9,22 @@ import io
 # ページのレイアウトをワイドモードに変更
 st.set_page_config(layout="wide")
 
+# secrets.toml から Google API の情報を取得して client_secrets.json を作成
+def save_client_secrets():
+    client_config = {
+        "web": {
+            "client_id": st.secrets["google_drive"]["client_id"],
+            "client_secret": st.secrets["google_drive"]["client_secret"],
+            "redirect_uris": st.secrets["google_drive"]["redirect_uris"]
+        }
+    }
+    with open("client_secrets.json", "w") as f:
+        json.dump(client_config, f)  # JSON ファイルを作成
+
 # 認証設定
 def authenticate():
+    save_client_secrets()  # `client_secrets.json` を作成
+    
     gauth = GoogleAuth()
     gauth.LoadCredentialsFile("credentials.json")  # 保存された認証情報をロード
     
