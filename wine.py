@@ -1,15 +1,47 @@
 import streamlit as st
 import pandas as pd
 from PIL import Image, ExifTags
-import os
+#import os
+from pydrive2.auth import GoogleAuth
+from pydrive2.drive import GoogleDrive
+import io
 
 # ページのレイアウトをワイドモードに変更
 st.set_page_config(layout="wide")
 
+# 認証設定
+def authenticate():
+    gauth = GoogleAuth()
+    gauth.LoadCredentialsFile("credentials.json")  # 保存された認証情報をロード
+    
+    if gauth.credentials is None:  # 初回認証
+        gauth.LocalWebserverAuth()
+    elif gauth.access_token_expired:  # アクセストークンが期限切れならリフレッシュ
+        gauth.Refresh()
+    else:
+        gauth.Authorize()  # 認証済みならそのまま使う
+
+    gauth.SaveCredentialsFile("credentials.json")  # 認証情報を保存
+    return gauth
+
+# 認証処理
+gauth = authenticate()
+drive = GoogleDrive(gauth)
+
+# Google Drive 認証と接続
+#gauth = GoogleAuth()
+#gauth.LoadClientConfigFile("client_secrets.json")  # 追加
+#gauth.LocalWebserverAuth()
+#drive = GoogleDrive(gauth)
+
 WINE_DATA_FILE = "wines.csv"
 OPENED_WINE_FILE = "opened_wines.csv"
+DRIVE_FOLDER_ID = "1Ve1xvaJki-px7N81uuxcwJ5VgAWNb1bj"  # Google DriveのフォルダIDを指定
 
-os.makedirs("images", exist_ok=True)
+# https://drive.google.com/drive/folders/XXXXXXXXXXXXXXXXXXXXXXX
+# XXXXXXXXXXXXXXXXXXXXXXX の部分が フォルダID 
+
+#os.makedirs("images", exist_ok=True)
 
 login_mode = None
 #ログイン機能あり=1
@@ -50,26 +82,44 @@ if login_mode == 1:
 
         if st.button("ログアウト"):
             logout()
-            
+
+def save_to_drive(file_path, file_name):
+    file = drive.CreateFile({"title": file_name, "parents": [{"id": DRIVE_FOLDER_ID}]})
+    file.SetContentFile(file_path)
+    file.Upload()            
+
+def load_from_drive(file_name):
+    file_list = drive.ListFile({'q': f"title='{file_name}' and '{DRIVE_FOLDER_ID}' in parents"}).GetList()
+    if file_list:
+        file = file_list[0]
+        content = file.GetContentString()
+        return content
+    return None
 
 def load_data():
-    if os.path.exists(WINE_DATA_FILE):
-        wines = pd.read_csv(WINE_DATA_FILE)
+    wines_csv = load_from_drive(WINE_DATA_FILE)
+    opened_wines_csv = load_from_drive(OPENED_WINE_FILE)
+    
+    if wines_csv:
+        wines = pd.read_csv(io.StringIO(wines_csv))
     else:
         wines = pd.DataFrame(columns=[
             'ワイン名', '年', '種類', '場所', '詳細情報', '写真',
             '購入日', '価格', '購入場所', '国', '地域', '評価', '抜栓日'
         ])
     
-    if os.path.exists(OPENED_WINE_FILE):
-        opened_wines = pd.read_csv(OPENED_WINE_FILE)
+    if opened_wines_csv:
+        opened_wines = pd.read_csv(io.StringIO(opened_wines_csv))
     else:
         opened_wines = pd.DataFrame(columns=wines.columns)
+    
     return wines, opened_wines
 
 def save_data():
-    st.session_state.wines.to_csv(WINE_DATA_FILE, index=False)
-    st.session_state.opened_wines.to_csv(OPENED_WINE_FILE, index=False)
+    wines_csv = st.session_state.wines.to_csv(index=False)
+    opened_wines_csv = st.session_state.opened_wines.to_csv(index=False)
+    save_to_drive(WINE_DATA_FILE, wines_csv)
+    save_to_drive(OPENED_WINE_FILE, opened_wines_csv)
 
 def update_wine_locations():
     st.session_state.wine_locations = {row: None for row in st.session_state.wines['場所'].unique()}
@@ -244,8 +294,10 @@ if st.session_state.selected_location:
                     except (AttributeError, KeyError, IndexError):
                         pass                 
 
-                    
+                    # 画像をローカル保存
                     image.save(image_path, format="JPEG", quality=85, optimize=True)
+                    # Google Drive にアップロード
+                    save_to_drive(image_path, image_path)
 
                     new_photos.append(image_path)
                 except OSError as e:
@@ -297,9 +349,18 @@ if not st.session_state.opened_wines.empty:
     def image_formatter(photo_str):
         if isinstance(photo_str, str) and photo_str:
             photos = photo_str.split(';')
-            img_tags = "".join([f'<img src="file://{os.path.abspath(photo)}" width="160">' for photo in photos])
+            img_tags = ""
+            for photo in photos:
+                file_list = drive.ListFile({'q': f"title='{photo}' and '{DRIVE_FOLDER_ID}' in parents"}).GetList()
+                if file_list:
+                    file_id = file_list[0]['id']
+                    img_url = f"https://drive.google.com/uc?id={file_id}"
+                    img_tags += f'<img src="{img_url}" width="160">'
             return img_tags
         return ""
+
+
+
 
     # 画像の表示用にフォーマット
     df_display["写真"] = df_display["写真"].apply(image_formatter)
