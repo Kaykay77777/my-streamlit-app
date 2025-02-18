@@ -4,6 +4,7 @@ from PIL import Image, ExifTags
 #import os
 from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
+import json
 import io
 
 # ページのレイアウトをワイドモードに変更
@@ -24,7 +25,7 @@ def save_client_secrets():
 # 認証設定
 def authenticate():
     save_client_secrets()  # `client_secrets.json` を作成
-    
+
     gauth = GoogleAuth()
     gauth.LoadCredentialsFile("credentials.json")  # 保存された認証情報をロード
     
