@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 from PIL import Image, ExifTags
-#import os
+import os
 import tempfile 
 from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
