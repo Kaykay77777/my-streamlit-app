@@ -25,27 +25,19 @@ def save_client_secrets():
         }
     }
     
-    # 一時ディレクトリを作成
-    temp_dir = tempfile.gettempdir()
-    secrets_path = os.path.join(temp_dir, "client_secrets.json")
-
-    with open(secrets_path, "w") as f:
-        json.dump(client_config, f)  # JSON ファイルを作成
-
-    return secrets_path  # ファイルのパスを返す
+    # 一時ファイルとして `client_secrets.json` を作成
+    with open("client_secrets.json", "w") as f:
+        json.dump(client_config, f)
 
 # 認証設定
 def authenticate():
-    client_secrets_path = save_client_secrets()  # 一時ファイルに保存
+    save_client_secrets()  # `client_secrets.json` を作成
 
     gauth = GoogleAuth()
-    gauth.LoadClientConfigFile(client_secrets_path)  # ここを修正
-
-    credentials_path = os.path.join(tempfile.gettempdir(), "credentials.json")
-
+    
     # 認証処理
     try:
-        gauth.LoadCredentialsFile(credentials_path)  # 保存された認証情報をロード
+        gauth.LoadCredentialsFile("credentials.json")  # 認証情報をロード
     except Exception as e:
         print(f"Error loading credentials: {e}")
 
@@ -56,8 +48,11 @@ def authenticate():
     else:
         gauth.Authorize()  # 認証済みならそのまま使う
 
-    gauth.SaveCredentialsFile(credentials_path)  # 認証情報を保存
+    # 認証情報を `credentials.json` に保存
+    gauth.SaveCredentialsFile("credentials.json")
+
     return gauth
+
 
 # 認証処理
 gauth = authenticate()
