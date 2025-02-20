@@ -7,6 +7,8 @@ from pydrive2.drive import GoogleDrive
 import json
 import io
 
+#credentials.json
+
 # ページのレイアウトをワイドモードに変更
 st.set_page_config(layout="wide")
 
@@ -17,33 +19,43 @@ def save_client_secrets():
             "client_id": st.secrets["google_drive"]["client_id"],
             "client_secret": st.secrets["google_drive"]["client_secret"],
             "redirect_uris": st.secrets["google_drive"]["redirect_uris"],
-            "auth_uri": st.secrets["google_drive"]["auth_uri"],  # auth_uri を追加
-            "token_uri": st.secrets["google_drive"]["token_uri"]   # token_uri を追加
+            "auth_uri": st.secrets["google_drive"]["auth_uri"],
+            "token_uri": st.secrets["google_drive"]["token_uri"]
         }
     }
-    with open("client_secrets.json", "w") as f:
+    
+    # 一時ディレクトリを作成
+    temp_dir = tempfile.gettempdir()
+    secrets_path = os.path.join(temp_dir, "client_secrets.json")
+
+    with open(secrets_path, "w") as f:
         json.dump(client_config, f)  # JSON ファイルを作成
 
-    # client_secrets.json の内容を確認 　確認用のため後で削除
-    with open("client_secrets.json", "r") as f:
-        print(json.load(f))  # 内容を出力
+    return secrets_path  # ファイルのパスを返す
 
 # 認証設定
 def authenticate():
-    save_client_secrets()  # `client_secrets.json` を作成
+    client_secrets_path = save_client_secrets()  # 一時ファイルに保存
 
     gauth = GoogleAuth()
-    gauth.LoadCredentialsFile("credentials.json")  # 保存された認証情報をロード
-    
+    gauth.LoadClientConfigFile(client_secrets_path)  # ここを修正
+
+    credentials_path = os.path.join(tempfile.gettempdir(), "credentials.json")
+
+    # 認証処理
+    try:
+        gauth.LoadCredentialsFile(credentials_path)  # 保存された認証情報をロード
+    except Exception as e:
+        print(f"Error loading credentials: {e}")
+
     if gauth.credentials is None:  # 初回認証
-        # Webサーバーを使わずに認証
-        gauth.CommandLineAuth()
+        gauth.LocalWebserverAuth()  # Webサーバーを起動して認証
     elif gauth.access_token_expired:  # アクセストークンが期限切れならリフレッシュ
         gauth.Refresh()
     else:
         gauth.Authorize()  # 認証済みならそのまま使う
 
-    gauth.SaveCredentialsFile("credentials.json")  # 認証情報を保存
+    gauth.SaveCredentialsFile(credentials_path)  # 認証情報を保存
     return gauth
 
 # 認証処理
