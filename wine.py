@@ -5,6 +5,7 @@ import os
 import tempfile 
 from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
+from pydrive2.auth.service_account import ServiceAccountCredentials
 import json
 import io
 
@@ -31,9 +32,13 @@ def save_client_secrets():
 
 # 認証設定
 def authenticate():
-    save_client_secrets()  # `client_secrets.json` を作成
+    creds_dict = json.loads(st.secrets["google_drive"]["service_account_info"])
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, ['https://www.googleapis.com/auth/drive'])
 
     gauth = GoogleAuth()
+    gauth.credentials = creds
+    return gauth
+
     
     # 認証処理
     try:
