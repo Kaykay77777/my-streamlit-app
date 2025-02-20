@@ -42,7 +42,8 @@ def authenticate():
         print(f"Error loading credentials: {e}")
 
     if gauth.credentials is None:  # 初回認証
-        gauth.LocalWebserverAuth()  # Webサーバーを起動して認証
+        # コマンドライン認証（クラウド環境向け）
+        gauth.CommandLineAuth()
     elif gauth.access_token_expired:  # アクセストークンが期限切れならリフレッシュ
         gauth.Refresh()
     else:
