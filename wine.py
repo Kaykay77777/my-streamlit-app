@@ -22,23 +22,7 @@ from googleapiclient.discovery import build
 # ページのレイアウトをワイドモードに変更
 st.set_page_config(layout="wide")
 
-"""
-# secrets.toml から Google API の情報を取得して client_secrets.json を作成
-def save_client_secrets():
-    client_config = {
-        "web": {
-            "client_id": st.secrets["google_drive"]["client_id"],
-            "client_secret": st.secrets["google_drive"]["client_secret"],
-            "redirect_uris": st.secrets["google_drive"]["redirect_uris"],
-            "auth_uri": st.secrets["google_drive"]["auth_uri"],
-            "token_uri": st.secrets["google_drive"]["token_uri"]
-        }
-    }
-    
-    # 一時ファイルとして `client_secrets.json` を作成
-    with open("client_secrets.json", "w") as f:
-        json.dump(client_config, f)
-"""
+
         
 # 認証設定
 def authenticate():
@@ -58,34 +42,7 @@ def authenticate():
     except json.JSONDecodeError as e:
         st.error(f"JSON の解析に失敗しました: {e}")
         return None
-
-    #1つ前の修正
-    creds_dict = json.loads(st.secrets["google_drive"]["service_account_info"])
-    creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, ['https://www.googleapis.com/auth/drive'])
-
-    gauth = GoogleAuth()
-    gauth.credentials = creds
-    return gauth
-
-    #2つ前修正
-    # 認証処理
-    try:
-        gauth.LoadCredentialsFile("credentials.json")  # 認証情報をロード
-    except Exception as e:
-        print(f"Error loading credentials: {e}")
-
-    if gauth.credentials is None:  # 初回認証
-        # コマンドライン認証（クラウド環境向け）
-        gauth.CommandLineAuth()
-    elif gauth.access_token_expired:  # アクセストークンが期限切れならリフレッシュ
-        gauth.Refresh()
-    else:
-        gauth.Authorize()  # 認証済みならそのまま使う
-
-    # 認証情報を `credentials.json` に保存
-    gauth.SaveCredentialsFile("credentials.json")
-
-    return gauth
+    
 
 
 # 認証処理
@@ -104,11 +61,7 @@ else:
 
 # access_token_expired
 
-# Google Drive 認証と接続
-#gauth = GoogleAuth()
-#gauth.LoadClientConfigFile("client_secrets.json")  # 追加
-#gauth.LocalWebserverAuth()
-#drive = GoogleDrive(gauth)
+
 
 WINE_DATA_FILE = "wines.csv"
 OPENED_WINE_FILE = "opened_wines.csv"
@@ -187,9 +140,12 @@ def load_from_drive(file_name):
     file_list = list_drive_files()
     if file_list:
         file = file_list[0]
-        content = file.GetContentString()
+        file_id = file['id']
+        request = drive_service.files().get_media(fileId=file_id)
+        content = io.BytesIO(request.execute())
         return content
     return None
+
 
 def load_data():
     wines_csv = load_from_drive(WINE_DATA_FILE)
