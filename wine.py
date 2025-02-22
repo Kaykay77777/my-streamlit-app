@@ -89,15 +89,18 @@ def authenticate():
 
 
 # 認証処理
-gauth = authenticate()
+# gauth = authenticate()
+drive = authenticate()
 
-if gauth:
+if drive:
     st.success("Google Drive 認証成功！")
 else:
     st.error("Google Drive 認証に失敗しました。")
 
 
-drive = GoogleDrive(gauth)
+#drive = GoogleDrive(gauth)
+
+# access_token_expired
 
 # Google Drive 認証と接続
 #gauth = GoogleAuth()
