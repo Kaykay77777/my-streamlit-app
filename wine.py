@@ -192,7 +192,12 @@ if "selected_location" not in st.session_state:
 
 if "wine_locations" not in st.session_state:
     st.session_state.wine_locations = {}
+    
 
+st.write("wines:")    # 確認用
+st.write(wines)    # 確認用
+st.write("opened_wines:")    # 確認用
+st.write(opened_wines)    # 確認用
 
 st.subheader('ここまでは実行2')
 
