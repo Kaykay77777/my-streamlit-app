@@ -7,17 +7,12 @@
 import streamlit as st
 import pandas as pd
 from PIL import Image, ExifTags
-#import os
-#import tempfile 
-from pydrive2.auth import GoogleAuth
-from pydrive2.drive import GoogleDrive
-#from pydrive2.auth.service_account import ServiceAccountCredentials
+
 import json
 import io
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
-
-#credentials.json
+from googleapiclient.http import MediaFileUpload
 
 # ページのレイアウトをワイドモードに変更
 st.set_page_config(layout="wide")
@@ -53,24 +48,13 @@ if drive:
     st.success("Google Drive 認証成功！")
 else:
     st.error("Google Drive 認証に失敗しました。")
-
-# 検索用　後で削除
-#drive = GoogleDrive(gauth)
-# ListFile
-
-
-# access_token_expired
-
-
+    
 
 WINE_DATA_FILE = "wines.csv"
 OPENED_WINE_FILE = "opened_wines.csv"
 DRIVE_FOLDER_ID = "1Ve1xvaJki-px7N81uuxcwJ5VgAWNb1bj"  # Google DriveのフォルダIDを指定
 
-# https://drive.google.com/drive/folders/XXXXXXXXXXXXXXXXXXXXXXX
-# XXXXXXXXXXXXXXXXXXXXXXX の部分が フォルダID 
 
-#os.makedirs("images", exist_ok=True)
 
 login_mode = None
 #ログイン機能あり=1
@@ -112,10 +96,13 @@ if login_mode == 1:
         if st.button("ログアウト"):
             logout()
 
+
+# ファイルのアップロード処理（Google Drive APIを使用）
 def save_to_drive(file_path, file_name):
-    file = drive.CreateFile({"title": file_name, "parents": [{"id": DRIVE_FOLDER_ID}]})
-    file.SetContentFile(file_path)
-    file.Upload()        
+    file_metadata = {'name': file_name, 'parents': [DRIVE_FOLDER_ID]}
+    media = MediaFileUpload(file_path, mimetype='image/jpeg', resumable=True)
+    file = drive.files().create(body=file_metadata, media_body=media, fields='id').execute()
+    st.write(f'File ID: {file.get("id")}')
 
 def list_drive_files():
     if not drive:
@@ -123,7 +110,8 @@ def list_drive_files():
         return
 
     results = drive.files().list(
-        q="'1Ve1xvaJki-px7N81uuxcwJ5VgAWNb1bj' in parents and trashed = false",
+        #q="'1Ve1xvaJki-px7N81uuxcwJ5VgAWNb1bj' in parents and trashed = false",
+        q=f"'{DRIVE_FOLDER_ID}' in parents and trashed = false",
                                          pageSize=1000,
                                          fields="files(id, name)").execute()
     files = results.get("files", [])
@@ -134,9 +122,10 @@ def list_drive_files():
         st.write("Google Drive のファイル:")
         for file in files:
             st.write(f"{file['name']} (ID: {file['id']})")
+    return files
 
     
-
+# Google Driveからファイルを読み込む
 def load_from_drive(file_name):
     file_list = list_drive_files()
     if file_list:
@@ -172,6 +161,7 @@ def save_data():
     opened_wines_csv = st.session_state.opened_wines.to_csv(index=False)
     save_to_drive(WINE_DATA_FILE, wines_csv)
     save_to_drive(OPENED_WINE_FILE, opened_wines_csv)
+
 
 def update_wine_locations():
     st.session_state.wine_locations = {row: None for row in st.session_state.wines['場所'].unique()}
@@ -316,12 +306,12 @@ if st.session_state.selected_location:
 
     # 画像アップロード
     wine_images = st.file_uploader("ワインの写真を最大3枚アップロード", type=['jpg', 'jpeg', 'png'], accept_multiple_files=True)
-    
+        
     if wine_images:  
         new_photos = []
         if wine_images:
             for i, wine_image in enumerate(wine_images[:3]):
-                image_path = f"images/{wine_name}_{st.session_state.selected_location}_photo_{i+1}.png"
+                image_path = f"images/{wine_image.name}"
 
                 try:
                     image = Image.open(wine_image).convert("RGB")  # RGB変換して保存互換性を確保
@@ -348,8 +338,9 @@ if st.session_state.selected_location:
 
                     # 画像をローカル保存
                     image.save(image_path, format="JPEG", quality=85, optimize=True)
-                    # Google Drive にアップロード
-                    save_to_drive(image_path, image_path)
+
+                    # Google Driveにアップロード
+                    save_to_drive(image_path, wine_image.name)
 
                     new_photos.append(image_path)
                 except OSError as e:
