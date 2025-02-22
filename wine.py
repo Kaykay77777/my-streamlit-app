@@ -181,7 +181,7 @@ def load_data():
         ])
 
         # csvファイルがない場合は空のcsvファイルを保存する
-        save_to_drive(WINE_DATA_FILE, wines_csv)
+        save_to_drive(WINE_DATA_FILE, wines)
 
     # `opened_wines.csv` の読み込み
     if opened_wines_csv:
@@ -195,7 +195,7 @@ def load_data():
         opened_wines = pd.DataFrame(columns=wines.columns)
 
         # csvファイルがない場合は空のcsvファイルを保存する
-        save_to_drive(OPENED_WINE_FILE, opened_wines_csv)
+        save_to_drive(OPENED_WINE_FILE, opened_wines)
 
     return wines, opened_wines
 
