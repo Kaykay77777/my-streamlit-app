@@ -144,7 +144,7 @@ def load_from_drive(file_name):
 
     if not file_id:
         st.error(f"{file_name} が見つかりませんでした。")
-        return None
+        # return None
     
     # ファイルをダウンロード
     request = drive.files().get_media(fileId=file_id)
