@@ -146,7 +146,7 @@ def load_data():
         print("表示")
         print(wines_csv.read()[:200])  # 最初の200バイトを表示して、構造を確認
 
-        wines = pd.read_csv(io.BytesIO(wines_csv.read()), encoding='latin1')  # または 'latin1' を試してみてください
+        wines = pd.read_csv(io.BytesIO(wines_csv.read()), encoding='ISO-latin1-1')  # または 'latin1' を試してみてください
     else:
         wines = pd.DataFrame(columns=[
             'ワイン名', '年', '種類', '場所', '詳細情報', '写真',
@@ -172,6 +172,8 @@ def update_wine_locations():
     for _, wine in st.session_state.wines.iterrows():
         st.session_state.wine_locations[wine['場所']] = wine['ワイン名']
 
+print("ここまでは実行1")
+
 if "rows" not in st.session_state:
     st.session_state.rows = 9
     st.session_state.bottles_per_row = 6
@@ -182,6 +184,8 @@ if "rows" not in st.session_state:
 
 if "selected_location" not in st.session_state:
     st.session_state.selected_location = None
+
+print("ここまでは実行2")
 
 def display_wine_cellar():
     st.markdown("""
