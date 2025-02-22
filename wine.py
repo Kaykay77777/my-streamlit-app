@@ -142,7 +142,7 @@ def load_data():
     opened_wines_csv = load_from_drive(OPENED_WINE_FILE)
     
     if wines_csv:
-        wines = pd.read_csv(io.StringIO(wines_csv))
+        wines = pd.read_csv(io.StringIO(wines_csv.decode('utf-8')))
     else:
         wines = pd.DataFrame(columns=[
             'ワイン名', '年', '種類', '場所', '詳細情報', '写真',
@@ -150,7 +150,7 @@ def load_data():
         ])
     
     if opened_wines_csv:
-        opened_wines = pd.read_csv(io.StringIO(opened_wines_csv))
+        opened_wines = pd.read_csv(io.StringIO(opened_wines_csv.decode('utf-8')))
     else:
         opened_wines = pd.DataFrame(columns=wines.columns)
     
