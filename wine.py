@@ -14,6 +14,7 @@ from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 from googleapiclient.http import MediaIoBaseDownload
+import tempfile
 
 # Streamlit のキャッシュクリア
 st.cache_data.clear()
@@ -124,9 +125,14 @@ def save_to_drive_newcsv(file_name, dataframe):
     # メモリ上のバイナリストリームとして扱う
     file_stream = io.BytesIO(csv_data.encode('utf-8'))
 
+    # 一時ファイルを作成してCSVデータを書き込む
+    with tempfile.NamedTemporaryFile(delete=False, suffix='.csv') as temp_file:
+        temp_file.write(file_stream.getvalue())
+        temp_file_path = temp_file.name  # 一時ファイルのパス
+
     # Google Driveにアップロード
     file_metadata = {'name': file_name, 'parents': [DRIVE_FOLDER_ID]}
-    media = MediaFileUpload(file_stream, mimetype='text/csv', resumable=True)
+    media = MediaFileUpload(temp_file_path, mimetype='text/csv', resumable=True)
 
     try:
         # Google Driveにファイルをアップロード
