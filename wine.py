@@ -13,6 +13,7 @@ import io
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
+from googleapiclient.http import MediaIoBaseDownload
 
 # ページのレイアウトをワイドモードに変更
 st.set_page_config(layout="wide")
@@ -105,6 +106,7 @@ def save_to_drive(file_path, file_name):
     st.write(f'File ID: {file.get("id")}')
 
 def list_drive_files():
+    """Google Drive 内のファイルをリスト表示"""
     if not drive:
         st.error("Google Drive 認証が必要です")
         return
@@ -127,41 +129,70 @@ def list_drive_files():
     
 # Google Driveからファイルを読み込む
 def load_from_drive(file_name):
+    """指定した Google Drive のファイルを取得"""
     file_list = list_drive_files()
-    if file_list:
-        file = file_list[0]
-        file_id = file['id']
-        request = drive.files().get_media(fileId=file_id)
-        content = io.BytesIO(request.execute())
-        st.write("content:")    # 確認用
-        st.write(content)    # 確認用
-        return content
-    return None
+
+    # ファイルリストの中から file_name に一致するファイルを探す
+    file_id = None
+    for file in file_list:
+        if file["name"] == file_name:
+            file_id = file["id"]
+            break  # 該当ファイルが見つかったらループを抜ける
+
+    if not file_id:
+        st.error(f"{file_name} が見つかりませんでした。")
+        return None
+    
+    # ファイルをダウンロード
+    request = drive.files().get_media(fileId=file_id)
+    file_stream = io.BytesIO()
+    downloader = MediaIoBaseDownload(file_stream, request)
+    done = False
+    while not done:
+        status, done = downloader.next_chunk()
+    
+    file_stream.seek(0)  # ポインタを先頭に戻す
+    return file_stream
 
 
 def load_data():
+    """Google Drive からデータを読み込む"""
     wines_csv = load_from_drive(WINE_DATA_FILE)
     opened_wines_csv = load_from_drive(OPENED_WINE_FILE)
     
+    # `wines.csv` の読み込み
     if wines_csv:
-        # エラーが発生する前に、データの先頭部分を表示して確認
-        st.write("表示:")    # 確認用
-        st.write(wines_csv.read()[:200])    # 確認用
-        wines = pd.read_csv(io.BytesIO(wines_csv.read()))#, encoding='latin1')  # または 'latin1' を試してみてください
+        try:
+            wines_csv.seek(0)  # ポインタを先頭に戻す
+            wines = pd.read_csv(wines_csv)
+        except Exception as e:
+            st.error(f"wines.csv の読み込みに失敗しました: {e}")
+            wines = pd.DataFrame(columns=[
+                'ワイン名', '年', '種類', '場所', '詳細情報', '写真',
+                '購入日', '価格', '購入場所', '国', '地域', '評価', '抜栓日'
+            ])
     else:
         wines = pd.DataFrame(columns=[
             'ワイン名', '年', '種類', '場所', '詳細情報', '写真',
             '購入日', '価格', '購入場所', '国', '地域', '評価', '抜栓日'
         ])
-    
+
+    # `opened_wines.csv` の読み込み
     if opened_wines_csv:
-        opened_wines = pd.read_csv(io.BytesIO(opened_wines_csv.read()), encoding='ISO-8859-1')  # 同様に修正
+        try:
+            opened_wines_csv.seek(0)  # ポインタを先頭に戻す
+            opened_wines = pd.read_csv(opened_wines_csv)
+        except Exception as e:
+            st.error(f"opened_wines.csv の読み込みに失敗しました: {e}")
+            opened_wines = pd.DataFrame(columns=wines.columns)
     else:
         opened_wines = pd.DataFrame(columns=wines.columns)
-    
+
     return wines, opened_wines
 
+
 def save_data():
+    """Google Drive にデータを保存"""
     wines_csv = st.session_state.wines.to_csv(index=False)
     opened_wines_csv = st.session_state.opened_wines.to_csv(index=False)
     save_to_drive(WINE_DATA_FILE, wines_csv)
@@ -192,7 +223,7 @@ if "selected_location" not in st.session_state:
 
 if "wine_locations" not in st.session_state:
     st.session_state.wine_locations = {}
-    
+
 
 st.write("wines:")    # 確認用
 st.write(wines)    # 確認用
