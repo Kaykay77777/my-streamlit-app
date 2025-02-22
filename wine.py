@@ -123,7 +123,7 @@ def list_drive_files():
         return
 
     results = drive.files().list(
-        q=f"{DRIVE_FOLDER_ID} in parents and trashed=false",
+        q="'1Ve1xvaJki-px7N81uuxcwJ5VgAWNb1bj' in parents and trashed = false",
                                          pageSize=1000,
                                          fields="files(id, name)").execute()
     files = results.get("files", [])
