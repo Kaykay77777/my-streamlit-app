@@ -144,8 +144,8 @@ def load_data():
     if wines_csv:
         # エラーが発生する前に、データの先頭部分を表示して確認
         print(wines_csv[:200])  # 最初の200バイトを表示して、構造を確認
-        
-        wines = pd.read_csv(wines_csv, encoding='ISO-8859-1')
+
+        wines = pd.read_csv(io.BytesIO(wines_csv), encoding='ISO-8859-1')  # または 'latin1' を試してみてください
     else:
         wines = pd.DataFrame(columns=[
             'ワイン名', '年', '種類', '場所', '詳細情報', '写真',
@@ -153,7 +153,7 @@ def load_data():
         ])
     
     if opened_wines_csv:
-        opened_wines = pd.read_csv(opened_wines_csv, encoding='ISO-8859-1')
+        opened_wines = pd.read_csv(io.BytesIO(opened_wines_csv), encoding='ISO-8859-1')  # 同様に修正
     else:
         opened_wines = pd.DataFrame(columns=wines.columns)
     
