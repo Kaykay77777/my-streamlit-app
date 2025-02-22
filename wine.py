@@ -147,21 +147,21 @@ def load_from_drive(file_name):
         if file["name"] == file_name:
             file_id = file["id"]
             break  # 該当ファイルが見つかったらループを抜ける
-
-    if not file_id:
+    
+    if file_id:
+    # ファイルをダウンロード
+        request = drive.files().get_media(fileId=file_id)
+        file_stream = io.BytesIO()
+        downloader = MediaIoBaseDownload(file_stream, request)
+        done = False
+        while not done:
+            status, done = downloader.next_chunk()
+        
+        file_stream.seek(0)  # ポインタを先頭に戻す
+        return file_stream
+    else:
         st.error(f"{file_name} が見つかりませんでした。")
         # return None
-    
-    # ファイルをダウンロード
-    request = drive.files().get_media(fileId=file_id)
-    file_stream = io.BytesIO()
-    downloader = MediaIoBaseDownload(file_stream, request)
-    done = False
-    while not done:
-        status, done = downloader.next_chunk()
-    
-    file_stream.seek(0)  # ポインタを先頭に戻す
-    return file_stream
 
 
 def load_data():
