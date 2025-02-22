@@ -7,13 +7,15 @@
 import streamlit as st
 import pandas as pd
 from PIL import Image, ExifTags
-import os
-import tempfile 
+#import os
+#import tempfile 
 from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
-from pydrive2.auth.service_account import ServiceAccountCredentials
+#from pydrive2.auth.service_account import ServiceAccountCredentials
 import json
 import io
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
 
 #credentials.json
 
@@ -38,6 +40,20 @@ def save_client_secrets():
 
 # 認証設定
 def authenticate():
+    credentials_info = json.loads(st.secrets["google_drive"]["service_account_info"])
+    
+    # サービスアカウントの認証情報から資格情報を作成
+    credentials = service_account.Credentials.from_service_account_info(
+        credentials_info,
+        scopes=['https://www.googleapis.com/auth/drive']
+    )
+
+    # Google Drive API クライアントを構築
+    drive_service = build('drive', 'v3', credentials=credentials)
+    return drive_service
+
+
+    #1つ前の修正
     creds_dict = json.loads(st.secrets["google_drive"]["service_account_info"])
     creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, ['https://www.googleapis.com/auth/drive'])
 
@@ -45,7 +61,7 @@ def authenticate():
     gauth.credentials = creds
     return gauth
 
-    
+    #2つ前修正
     # 認証処理
     try:
         gauth.LoadCredentialsFile("credentials.json")  # 認証情報をロード
