@@ -118,11 +118,11 @@ def save_to_drive(file_path, file_name):
     file.Upload()        
 
 def list_drive_files():
-    if not drive_service:
+    if not drive:
         st.error("Google Drive 認証が必要です")
         return
 
-    results = drive_service.files().list(q="'root' in parents and trashed=false",
+    results = drive.files().list(q="'root' in parents and trashed=false",
                                          pageSize=10,
                                          fields="files(id, name)").execute()
     files = results.get("files", [])
