@@ -142,6 +142,9 @@ def load_data():
     opened_wines_csv = load_from_drive(OPENED_WINE_FILE)
     
     if wines_csv:
+        # エラーが発生する前に、データの先頭部分を表示して確認
+        print(wines_csv[:200])  # 最初の200バイトを表示して、構造を確認
+        
         wines = pd.read_csv(wines_csv, encoding='ISO-8859-1')
     else:
         wines = pd.DataFrame(columns=[
