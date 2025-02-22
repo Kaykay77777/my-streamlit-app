@@ -174,6 +174,7 @@ def update_wine_locations():
 
 print("ここまでは実行1")
 
+# 初期化コードを追加
 if "rows" not in st.session_state:
     st.session_state.rows = 9
     st.session_state.bottles_per_row = 6
@@ -184,6 +185,9 @@ if "rows" not in st.session_state:
 
 if "selected_location" not in st.session_state:
     st.session_state.selected_location = None
+
+if "wine_locations" not in st.session_state:
+    st.session_state.wine_locations = {}
 
 print("ここまでは実行2")
 
