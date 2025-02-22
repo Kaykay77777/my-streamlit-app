@@ -102,9 +102,15 @@ if login_mode == 1:
 
 
 # ファイルのアップロード処理（Google Drive APIを使用）
-def save_to_drive(file_path, file_name):
+def save_to_drive_pic(file_path, file_name):
     file_metadata = {'name': file_name, 'parents': [DRIVE_FOLDER_ID]}
     media = MediaFileUpload(file_path, mimetype='image/jpeg', resumable=True)
+    file = drive.files().create(body=file_metadata, media_body=media, fields='id').execute()
+    st.write(f'File ID: {file.get("id")}')
+
+def save_to_drive_csv(file_path, file_name):
+    file_metadata = {'name': file_name, 'parents': [DRIVE_FOLDER_ID]}
+    media = MediaFileUpload(file_path, mimetype='text/csv', resumable=True)
     file = drive.files().create(body=file_metadata, media_body=media, fields='id').execute()
     st.write(f'File ID: {file.get("id")}')
 
@@ -181,7 +187,7 @@ def load_data():
         ])
 
         # csvファイルがない場合は空のcsvファイルを保存する
-        save_to_drive(WINE_DATA_FILE, wines)
+        save_to_drive_csv(WINE_DATA_FILE, wines)
 
     # `opened_wines.csv` の読み込み
     if opened_wines_csv:
@@ -195,7 +201,7 @@ def load_data():
         opened_wines = pd.DataFrame(columns=wines.columns)
 
         # csvファイルがない場合は空のcsvファイルを保存する
-        save_to_drive(OPENED_WINE_FILE, opened_wines)
+        save_to_drive_csv(OPENED_WINE_FILE, opened_wines)
 
     return wines, opened_wines
 
@@ -204,8 +210,8 @@ def save_data():
     """Google Drive にデータを保存"""
     wines_csv = st.session_state.wines.to_csv(index=False)
     opened_wines_csv = st.session_state.opened_wines.to_csv(index=False)
-    save_to_drive(WINE_DATA_FILE, wines_csv)
-    save_to_drive(OPENED_WINE_FILE, opened_wines_csv)
+    save_to_drive_csv(WINE_DATA_FILE, wines_csv)
+    save_to_drive_csv(OPENED_WINE_FILE, opened_wines_csv)
 
 
 def update_wine_locations():
@@ -402,7 +408,7 @@ if st.session_state.selected_location:
                     image.save(image_path, format="JPEG", quality=85, optimize=True)
 
                     # Google Driveにアップロード
-                    save_to_drive(image_path, wine_image.name)
+                    save_to_drive_pic(image_path, wine_image.name)
 
                     new_photos.append(image_path)
                 except OSError as e:
