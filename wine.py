@@ -1,3 +1,9 @@
+# cd ワイン
+# git add wine.py
+# git commit -m "Update Python script"
+# git push origin main
+
+
 import streamlit as st
 import pandas as pd
 from PIL import Image, ExifTags
