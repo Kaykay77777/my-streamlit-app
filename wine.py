@@ -15,6 +15,9 @@ from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 from googleapiclient.http import MediaIoBaseDownload
 
+# Streamlit のキャッシュクリア
+st.cache_data.clear()
+
 # ページのレイアウトをワイドモードに変更
 st.set_page_config(layout="wide")
 
@@ -177,6 +180,9 @@ def load_data():
             '購入日', '価格', '購入場所', '国', '地域', '評価', '抜栓日'
         ])
 
+        # csvファイルがない場合は空のcsvファイルを保存する
+        save_to_drive(WINE_DATA_FILE, wines_csv)
+
     # `opened_wines.csv` の読み込み
     if opened_wines_csv:
         try:
@@ -187,6 +193,9 @@ def load_data():
             opened_wines = pd.DataFrame(columns=wines.columns)
     else:
         opened_wines = pd.DataFrame(columns=wines.columns)
+
+        # csvファイルがない場合は空のcsvファイルを保存する
+        save_to_drive(OPENED_WINE_FILE, opened_wines_csv)
 
     return wines, opened_wines
 
