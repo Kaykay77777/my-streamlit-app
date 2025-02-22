@@ -22,6 +22,7 @@ from googleapiclient.discovery import build
 # ページのレイアウトをワイドモードに変更
 st.set_page_config(layout="wide")
 
+"""
 # secrets.toml から Google API の情報を取得して client_secrets.json を作成
 def save_client_secrets():
     client_config = {
@@ -37,21 +38,26 @@ def save_client_secrets():
     # 一時ファイルとして `client_secrets.json` を作成
     with open("client_secrets.json", "w") as f:
         json.dump(client_config, f)
-
+"""
+        
 # 認証設定
 def authenticate():
-    credentials_info = json.loads(st.secrets["google_drive"]["service_account_info"])
+    try:
+        credentials_info = json.loads(st.secrets["google_drive"]["service_account_info"])
+        
+        # サービスアカウントの認証情報から資格情報を作成
+        credentials = service_account.Credentials.from_service_account_info(
+            credentials_info,
+            scopes=['https://www.googleapis.com/auth/drive']
+        )
+
+        # Google Drive API クライアントを構築
+        drive_service = build('drive', 'v3', credentials=credentials)
+        return drive_service
     
-    # サービスアカウントの認証情報から資格情報を作成
-    credentials = service_account.Credentials.from_service_account_info(
-        credentials_info,
-        scopes=['https://www.googleapis.com/auth/drive']
-    )
-
-    # Google Drive API クライアントを構築
-    drive_service = build('drive', 'v3', credentials=credentials)
-    return drive_service
-
+    except json.JSONDecodeError as e:
+        st.error(f"JSON の解析に失敗しました: {e}")
+        return None
 
     #1つ前の修正
     creds_dict = json.loads(st.secrets["google_drive"]["service_account_info"])
@@ -84,6 +90,13 @@ def authenticate():
 
 # 認証処理
 gauth = authenticate()
+
+if gauth:
+    st.success("Google Drive 認証成功！")
+else:
+    st.error("Google Drive 認証に失敗しました。")
+
+
 drive = GoogleDrive(gauth)
 
 # Google Drive 認証と接続
