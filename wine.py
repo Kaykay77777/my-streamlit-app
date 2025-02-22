@@ -141,7 +141,7 @@ def load_from_drive(file_name):
     if file_list:
         file = file_list[0]
         file_id = file['id']
-        request = drive_service.files().get_media(fileId=file_id)
+        request = drive.files().get_media(fileId=file_id)
         content = io.BytesIO(request.execute())
         return content
     return None
