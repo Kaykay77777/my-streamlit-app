@@ -97,8 +97,10 @@ if drive:
 else:
     st.error("Google Drive 認証に失敗しました。")
 
-
+# 検索用　後で削除
 #drive = GoogleDrive(gauth)
+# ListFile
+
 
 # access_token_expired
 
@@ -160,10 +162,29 @@ if login_mode == 1:
 def save_to_drive(file_path, file_name):
     file = drive.CreateFile({"title": file_name, "parents": [{"id": DRIVE_FOLDER_ID}]})
     file.SetContentFile(file_path)
-    file.Upload()            
+    file.Upload()        
+
+def list_drive_files():
+    if not drive_service:
+        st.error("Google Drive 認証が必要です")
+        return
+
+    results = drive_service.files().list(q="'root' in parents and trashed=false",
+                                         pageSize=10,
+                                         fields="files(id, name)").execute()
+    files = results.get("files", [])
+
+    if not files:
+        st.write("ファイルが見つかりませんでした。")
+    else:
+        st.write("Google Drive のファイル:")
+        for file in files:
+            st.write(f"{file['name']} (ID: {file['id']})")
+
+    
 
 def load_from_drive(file_name):
-    file_list = drive.ListFile({'q': f"title='{file_name}' and '{DRIVE_FOLDER_ID}' in parents"}).GetList()
+    file_list = list_drive_files()
     if file_list:
         file = file_list[0]
         content = file.GetContentString()
@@ -425,7 +446,7 @@ if not st.session_state.opened_wines.empty:
             photos = photo_str.split(';')
             img_tags = ""
             for photo in photos:
-                file_list = drive.ListFile({'q': f"title='{photo}' and '{DRIVE_FOLDER_ID}' in parents"}).GetList()
+                file_list = drive.list_drive_files()
                 if file_list:
                     file_id = file_list[0]['id']
                     img_url = f"https://drive.google.com/uc?id={file_id}"
