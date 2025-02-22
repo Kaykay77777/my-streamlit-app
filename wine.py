@@ -133,6 +133,8 @@ def load_from_drive(file_name):
         file_id = file['id']
         request = drive.files().get_media(fileId=file_id)
         content = io.BytesIO(request.execute())
+        st.write("content:")    # 確認用
+        st.write(content)    # 確認用
         return content
     return None
 
@@ -143,10 +145,9 @@ def load_data():
     
     if wines_csv:
         # エラーが発生する前に、データの先頭部分を表示して確認
-        print("表示")
-        print(wines_csv.read()[:200])  # 最初の200バイトを表示して、構造を確認
-
-        wines = pd.read_csv(io.BytesIO(wines_csv.read()), encoding='latin1')  # または 'latin1' を試してみてください
+        st.write("表示:")    # 確認用
+        st.write(wines_csv.read()[:200])    # 確認用
+        wines = pd.read_csv(io.BytesIO(wines_csv.read()))#, encoding='latin1')  # または 'latin1' を試してみてください
     else:
         wines = pd.DataFrame(columns=[
             'ワイン名', '年', '種類', '場所', '詳細情報', '写真',
@@ -174,6 +175,8 @@ def update_wine_locations():
 
 
 st.subheader('ここまでは実行1')
+
+
 
 # 初期化コードを追加
 if "rows" not in st.session_state:
