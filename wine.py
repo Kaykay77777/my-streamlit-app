@@ -146,7 +146,7 @@ def load_data():
         print("表示")
         print(wines_csv.read()[:200])  # 最初の200バイトを表示して、構造を確認
 
-        wines = pd.read_csv(io.BytesIO(wines_csv.read()), encoding='ISO-8859-1')  # または 'latin1' を試してみてください
+        wines = pd.read_csv(io.BytesIO(wines_csv.read()), encoding='latin1')  # または 'latin1' を試してみてください
     else:
         wines = pd.DataFrame(columns=[
             'ワイン名', '年', '種類', '場所', '詳細情報', '写真',
