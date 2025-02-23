@@ -479,6 +479,7 @@ if st.session_state.selected_location:
                     image.verify()  # 破損していないかチェック
                     image = Image.open(wine_image).convert("RGB")  # verifyの後は再オープンが必要
                     
+                    st.write("写真確認1")    # 確認用
                     
                     try:
                         exif = image._getexif()
@@ -497,7 +498,9 @@ if st.session_state.selected_location:
                         pass                 
 
                     # 画像をローカル保存
-                    image.save(image_path, format="JPEG", quality=85, optimize=True)
+                    #image.save(image_path, format="JPEG", quality=85, optimize=True)
+
+                    st.write("写真確認2")    # 確認用
 
                     # Google Driveにアップロード
                     save_to_drive_pic(image_path, wine_image.name)
