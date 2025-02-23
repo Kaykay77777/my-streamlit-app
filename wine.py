@@ -342,7 +342,7 @@ def display_wine_cellar():
 
     """, unsafe_allow_html=True)
         
-    st.subheader('ワインセラー_2/18')
+    st.subheader('ワインセラー_2/23')
     st.markdown('<div class="wine-grid">', unsafe_allow_html=True)
 
     for row in range(st.session_state.rows):
