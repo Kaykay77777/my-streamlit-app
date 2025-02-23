@@ -405,7 +405,7 @@ url = "https://drive.google.com/uc?id=1--aiq2_Uf6KBg6Xqp_w1pN0ZYeBp-vt8"
 response = requests.get(url)
 img = Image.open(BytesIO(response.content))
 
-st.image(img, use_column_width=True)
+st.image(img, use_container_width=True)
 
 
 
