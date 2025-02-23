@@ -546,10 +546,11 @@ if st.session_state.selected_location:
         new_photos = []
         for i, wine_image in enumerate(wine_images[:3]):
             try:
-                image = Image.open(wine_image).convert("RGB")  # RGB変換して保存互換性を確保
+                # 画像を開いてRGBに変換
+                image = Image.open(wine_image).convert("RGB")
                 image.load()  # 画像を完全に読み込む
                 image.verify()  # 破損していないかチェック
-                image = Image.open(wine_image).convert("RGB")  # verifyの後は再オープンが必要
+                image = Image.open(wine_image).convert("RGB")  # verify後は再オープン
 
                 st.write("写真確認1")  # 確認用
 
@@ -571,13 +572,15 @@ if st.session_state.selected_location:
 
                 st.write("写真確認2")  # 確認用
 
-                # 画像データをバイナリで取得
+                # 画像データを圧縮
                 img_bytes = BytesIO()
-                image.save(img_bytes, format="JPEG", quality=85, optimize=True)
+                compressed_data = compress_image(image.tobytes())  # 圧縮処理を追加
+
+                img_bytes.write(compressed_data)  # 圧縮された画像データをバイナリストリームに書き込む
                 img_bytes.seek(0)  # 読み込み位置をリセット
 
                 # Google Driveにアップロード
-                file_id = save_to_drive_pic(wine_image.name, img_bytes.getvalue())
+                file_id = save_to_drive_pic(wine_image.name, img_bytes.getvalue())  # 圧縮後のバイトデータを渡す
 
                 if file_id:
                     new_photos.append(f"https://drive.google.com/uc?id={file_id}")
