@@ -121,8 +121,16 @@ def save_to_drive_csv(file_path, file_name):
 """
 
 def save_to_drive_csv(file_name, dataframe):
-    # DataFrameをCSV形式に変換
-    csv_data = dataframe.to_csv(index=False, encoding='utf-8')
+    # dataframeの型を確認し、データフレームであればcsv変換
+    if isinstance(dataframe, str): # すでにCSVファイルならそのまま返す
+         # 何もしない
+         pass      
+    elif isinstance(dataframe, pd.DataFrame):  # DataFrameならCSVに変換
+        # DataFrameをCSV形式に変換
+        csv_data = dataframe.to_csv(index=False, encoding='utf-8')
+    else:
+        st.write(f"渡されたデータはCSVファイルのパスでもDataFrameでもありません。")
+
 
     # メモリ上のバイナリストリームとして扱う
     file_stream = io.BytesIO(csv_data.encode('utf-8'))
