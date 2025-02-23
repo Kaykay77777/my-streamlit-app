@@ -122,8 +122,11 @@ def save_to_drive_csv(file_path, file_name):
 
 # ファイルのアップロード処理（Google Drive APIを使用）
 def save_to_drive_pic(file_path, file_name):
+    st.write("写真確認2.5")    # 確認用
 
     file_metadata = {'name': file_name, 'parents': [DRIVE_FOLDER_ID]}
+    st.write("写真確認2.75")    # 確認用
+
     media = MediaFileUpload(file_path, mimetype='image/jpeg', resumable=True)
 
     st.write("写真確認3")    # 確認用
