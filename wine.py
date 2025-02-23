@@ -441,8 +441,14 @@ if st.session_state.selected_location:
     # NaNやNoneが含まれている場合に備えて空文字列に変換
     existing_photos = "" if isinstance(existing_photos, float) and np.isnan(existing_photos) else existing_photos
 
-    # 文字列が存在すれば ';' で分割、なければ空リスト
-    existing_photo_list = existing_photos.split(';') if existing_photos else []
+
+    # もしexisting_photosが文字列ならsplitする
+    if isinstance(existing_photos, str):
+        existing_photo_list = existing_photos.split(';') if existing_photos else []
+    else:
+        existing_photo_list = []  # 数値や他の型の場合、空のリストにする
+
+
 
 
     if existing_photo_list:
