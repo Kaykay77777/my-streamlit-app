@@ -101,7 +101,7 @@ if login_mode == 1:
         if st.button("ログアウト"):
             logout()
 
-
+"""
 # ファイルのアップロード処理（Google Drive APIを使用）
 def save_to_drive_pic(file_path, file_name):
     file_metadata = {'name': file_name, 'parents': [DRIVE_FOLDER_ID]}
@@ -109,7 +109,7 @@ def save_to_drive_pic(file_path, file_name):
     file = drive.files().create(body=file_metadata, media_body=media, fields='id').execute()
     st.write(f'File ID: {file.get("id")}')
 
-"""
+
 def save_to_drive_csv(file_path, file_name):
     file_metadata = {'name': file_name, 'parents': [DRIVE_FOLDER_ID]}
     media = MediaFileUpload(file_path, mimetype='text/csv', resumable=True)
@@ -119,6 +119,20 @@ def save_to_drive_csv(file_path, file_name):
     except Exception as e:
         st.error(f"ファイルのアップロード中にエラーが発生しました: {e}")
 """
+
+# ファイルのアップロード処理（Google Drive APIを使用）
+def save_to_drive_pic(file_path, file_name):
+
+    file_metadata = {'name': file_name, 'parents': [DRIVE_FOLDER_ID]}
+    media = MediaFileUpload(file_path, mimetype='image/jpeg', resumable=True)
+    try:
+        file = drive.files().create(body=file_metadata, media_body=media, fields='id').execute()
+        st.write(f"Google Driveにファイルをアップロードしました。File ID: {file.get('id')}")
+    except Exception as e:
+        st.error(f"Google Driveへのアップロード中にエラーが発生しました: {e}")
+
+
+    st.write(f'File ID: {file.get("id")}')
 
 def save_to_drive_csv(file_name, dataframe):
     # dataframeの型を確認し、データフレームであればcsv変換
