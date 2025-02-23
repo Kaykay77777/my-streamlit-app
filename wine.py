@@ -114,7 +114,7 @@ def compress_image(image_data, max_size=(800, 800), quality=85):
     img = Image.open(BytesIO(image_data))
     
     # 画像のリサイズ (アスペクト比維持)
-    img.thumbnail(max_size, Image.ANTIALIAS)
+    img.thumbnail(max_size, Image.LANCZOS)
     
     # 圧縮した画像をバイトストリームに変換
     img_io = BytesIO()
@@ -163,7 +163,7 @@ def save_to_drive_pic(file_name, image_data):
     try:
         file = drive.files().create(body=file_metadata, media_body=media, fields='id, md5Checksum').execute()
         st.write(f"Google Driveにファイルをアップロードしました。File ID: {file.get('id')}")
-        
+
         return file.get('id')  # 保存したファイルのIDを返す
     except Exception as e:
         st.error(f"Google Driveへのアップロード中にエラーが発生しました: {e}")
