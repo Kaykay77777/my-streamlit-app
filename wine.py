@@ -15,6 +15,8 @@ from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 from googleapiclient.http import MediaIoBaseDownload
 import tempfile
+from io import BytesIO
+from googleapiclient.http import MediaIoBaseUpload
 
 # Streamlit のキャッシュクリア
 st.cache_data.clear()
@@ -121,13 +123,18 @@ def save_to_drive_csv(file_path, file_name):
 """
 
 # ファイルのアップロード処理（Google Drive APIを使用）
-def save_to_drive_pic(file_path, file_name):
+def save_to_drive_pic(file_path, file_name, image):
+    # 画像データをバイナリ形式で読み込む
+    image_data = image.read()
+
     st.write("写真確認2.5")    # 確認用
 
     file_metadata = {'name': file_name, 'parents': [DRIVE_FOLDER_ID]}
     st.write("写真確認2.75")    # 確認用
 
-    media = MediaFileUpload(file_path, mimetype='image/jpeg', resumable=True)
+    #media = MediaFileUpload(file_path, mimetype='image/jpeg', resumable=True)
+    media = MediaIoBaseUpload(BytesIO(image_data), mimetype='image/jpeg', resumable=True)
+
 
     st.write("写真確認3")    # 確認用
 
@@ -510,7 +517,7 @@ if st.session_state.selected_location:
                     st.write("写真確認2")    # 確認用
 
                     # Google Driveにアップロード
-                    save_to_drive_pic(image_path, wine_image.name)
+                    save_to_drive_pic(image_path, wine_image.name,image)
 
                     new_photos.append(image_path)
                 except OSError as e:
