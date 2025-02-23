@@ -388,7 +388,7 @@ def display_wine_cellar():
                     if img_path:
                         st.write(f"画像URL: {img_path}")  # デバッグ用にURLを表示
                         #st.image(img_path, width=80, use_container_width=True)
-                        st.image(img_path, width=10)#, use_container_width=True)
+                        st.image(img_path, width=150)#, use_container_width=True)
                     else:
                         st.markdown('<div style="height:135px;"></div>', unsafe_allow_html=True)
 
