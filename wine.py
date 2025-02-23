@@ -169,7 +169,20 @@ def save_to_drive_pic(file_name, image_data):
         st.error(f"Google Driveへのアップロード中にエラーが発生しました: {e}")
         return None
     
+    file_metadata = {'name': file_name, 'parents': [DRIVE_FOLDER_ID]}
+    media = MediaIoBaseUpload(BytesIO(image_data), mimetype='image/jpeg', resumable=True)
 
+    st.write("写真確認3")  # 確認用
+
+    try:
+        file = drive.files().create(body=file_metadata, media_body=media, fields='id').execute()
+        st.write(f"Google Driveにファイルをアップロードしました。File ID: {file.get('id')}")
+        st.write(f'File ID: {file.get("id")}')
+        return file.get('id')  # 保存したファイルのIDを返す
+    except Exception as e:
+        st.error(f"Google Driveへのアップロード中にエラーが発生しました: {e}")
+        return None
+    
     
 
 def save_to_drive_csv(file_name, dataframe):
@@ -406,7 +419,8 @@ def display_wine_cellar():
                 if isinstance(photos, str) and photos:
                     # Google Driveの共有リンクを取得して変換
                     shared_url = photos.split(';')[0]  # 最初の画像URL
-                    img_path = convert_drive_url(shared_url)
+                    #img_path = convert_drive_url(shared_url)
+                    img_path = shared_url  # 変換不要
 
             with cols[bottle]:
                 with st.container(border=True):
