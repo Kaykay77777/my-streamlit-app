@@ -22,6 +22,8 @@ import re
 # Streamlit のキャッシュクリア
 st.cache_data.clear()
 
+st.legacy_caching.clear_cache()
+
 # ページのレイアウトをワイドモードに変更
 st.set_page_config(layout="wide")
 
