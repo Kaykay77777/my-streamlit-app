@@ -123,30 +123,25 @@ def save_to_drive_csv(file_path, file_name):
 """
 
 # ファイルのアップロード処理（Google Drive APIを使用）
-def save_to_drive_pic(file_path, file_name, image):
-    # 画像データをバイナリ形式で読み込む
-    image_data = image.read()
-
-    st.write("写真確認2.5")    # 確認用
+def save_to_drive_pic(file_name, image_data):
+    st.write("写真確認2.5")  # 確認用
 
     file_metadata = {'name': file_name, 'parents': [DRIVE_FOLDER_ID]}
-    st.write("写真確認2.75")    # 確認用
-
-    #media = MediaFileUpload(file_path, mimetype='image/jpeg', resumable=True)
     media = MediaIoBaseUpload(BytesIO(image_data), mimetype='image/jpeg', resumable=True)
 
-
-    st.write("写真確認3")    # 確認用
+    st.write("写真確認3")  # 確認用
 
     try:
         file = drive.files().create(body=file_metadata, media_body=media, fields='id').execute()
         st.write(f"Google Driveにファイルをアップロードしました。File ID: {file.get('id')}")
+        st.write(f'File ID: {file.get("id")}')
+        return file.get('id')  # 保存したファイルのIDを返す
     except Exception as e:
         st.error(f"Google Driveへのアップロード中にエラーが発生しました: {e}")
+        return None
+    
 
-    st.write("写真確認4")    # 確認用
-
-    st.write(f'File ID: {file.get("id")}')
+    
 
 def save_to_drive_csv(file_name, dataframe):
     # dataframeの型を確認し、データフレームであればcsv変換
@@ -481,52 +476,52 @@ if st.session_state.selected_location:
     # 画像アップロード
     wine_images = st.file_uploader("ワインの写真を最大3枚アップロード", type=['jpg', 'jpeg', 'png'], accept_multiple_files=True)
         
-    if wine_images:  
+    if wine_images:
         new_photos = []
-        if wine_images:
-            for i, wine_image in enumerate(wine_images[:3]):
-                image_path = f"images/{wine_image.name}"
+        for i, wine_image in enumerate(wine_images[:3]):
+            try:
+                image = Image.open(wine_image).convert("RGB")  # RGB変換して保存互換性を確保
+                image.load()  # 画像を完全に読み込む
+                image.verify()  # 破損していないかチェック
+                image = Image.open(wine_image).convert("RGB")  # verifyの後は再オープンが必要
+
+                st.write("写真確認1")  # 確認用
 
                 try:
-                    image = Image.open(wine_image).convert("RGB")  # RGB変換して保存互換性を確保
-                    image.load()  # 画像を完全に読み込む
-                    image.verify()  # 破損していないかチェック
-                    image = Image.open(wine_image).convert("RGB")  # verifyの後は再オープンが必要
-                    
-                    st.write("写真確認1")    # 確認用
-                    
-                    try:
-                        exif = image._getexif()
-                        if exif:
-                            for tag, value in exif.items():
-                                tag_name = ExifTags.TAGS.get(tag, tag)
-                                if tag_name == 'Orientation':
-                                    if value == 3:
-                                        image = image.rotate(180, expand=True)
-                                    elif value == 6:
-                                        image = image.rotate(270, expand=True)
-                                    elif value == 8:
-                                        image = image.rotate(90, expand=True)
-                                    break
-                    except (AttributeError, KeyError, IndexError):
-                        pass                 
+                    exif = image._getexif()
+                    if exif:
+                        for tag, value in exif.items():
+                            tag_name = ExifTags.TAGS.get(tag, tag)
+                            if tag_name == 'Orientation':
+                                if value == 3:
+                                    image = image.rotate(180, expand=True)
+                                elif value == 6:
+                                    image = image.rotate(270, expand=True)
+                                elif value == 8:
+                                    image = image.rotate(90, expand=True)
+                                break
+                except (AttributeError, KeyError, IndexError):
+                    pass
 
-                    # 画像をローカル保存
-                    #image.save(image_path, format="JPEG", quality=85, optimize=True)
+                st.write("写真確認2")  # 確認用
 
-                    st.write("写真確認2")    # 確認用
+                # 画像データをバイナリで取得
+                img_bytes = BytesIO()
+                image.save(img_bytes, format="JPEG", quality=85, optimize=True)
+                img_bytes.seek(0)  # 読み込み位置をリセット
 
-                    # Google Driveにアップロード
-                    save_to_drive_pic(image_path, wine_image.name,image)
+                # Google Driveにアップロード
+                file_id = save_to_drive_pic(wine_image.name, img_bytes.getvalue())
 
-                    new_photos.append(image_path)
-                except OSError as e:
-                    st.error(f"画像の保存中にエラーが発生しました: {e}")
-        
+                if file_id:
+                    new_photos.append(f"https://drive.google.com/uc?id={file_id}")
+
+            except OSError as e:
+                st.error(f"画像の保存中にエラーが発生しました: {e}")
+
         photo_paths = ';'.join(existing_photo_list + new_photos) if new_photos else existing_wine["写真"].values[0] if not existing_wine.empty else ""
 
-
-
+        
     if st.button('ワインを登録'):
         if not existing_wine.empty:
             existing_data = existing_wine.iloc[0].fillna('').to_dict()
