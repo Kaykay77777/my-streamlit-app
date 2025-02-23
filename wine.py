@@ -348,7 +348,7 @@ def display_wine_cellar():
                 }
             }
         </style>
-
+                
     """, unsafe_allow_html=True)
         
     st.subheader('ワインセラー_2/23')
@@ -361,19 +361,22 @@ def display_wine_cellar():
             wine_name = st.session_state.wine_locations.get(loc, "空") or "空"
             
             wine_info = st.session_state.wines[st.session_state.wines['場所'] == loc]
-            img_path = None
+            img_url = None
+
             if not wine_info.empty:
                 wine_name = wine_info.iloc[0]['ワイン名']
                 photos = wine_info.iloc[0]['写真']
                 if isinstance(photos, str) and photos:
-                    img_path = photos.split(';')[0]
-            
+                    # Google Drive の URL を作成
+                    file_id = photos.split(';')[0].split('id=')[-1]  # "https://drive.google.com/uc?id=<FILE_ID>" 形式を想定
+                    img_url = f"https://drive.google.com/uc?id={file_id}"
+
             with cols[bottle]:
                 with st.container(border=True):
                     if st.button(str(wine_name), key=loc):
                         st.session_state.selected_location = loc
-                    if img_path:
-                        st.image(img_path, width=80, use_container_width=True)
+                    if img_url:
+                        st.image(img_url, width=80, use_container_width=True)
                     else:
                         st.markdown('<div style="height:135px;"></div>', unsafe_allow_html=True)
 
@@ -521,7 +524,7 @@ if st.session_state.selected_location:
 
         photo_paths = ';'.join(existing_photo_list + new_photos) if new_photos else existing_wine["写真"].values[0] if not existing_wine.empty else ""
 
-        
+
     if st.button('ワインを登録'):
         if not existing_wine.empty:
             existing_data = existing_wine.iloc[0].fillna('').to_dict()
