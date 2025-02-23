@@ -344,11 +344,10 @@ def display_wine_cellar():
             /* スマホ向けの調整 */
             @media (max-width: 768px) {
                 .wine-grid {
-                    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); /* スマホでは幅を縮小 */
+                    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
                 }
             }
         </style>
-                
     """, unsafe_allow_html=True)
         
     st.subheader('ワインセラー_2/23')
@@ -367,16 +366,19 @@ def display_wine_cellar():
                 wine_name = wine_info.iloc[0]['ワイン名']
                 photos = wine_info.iloc[0]['写真']
                 if isinstance(photos, str) and photos:
-                    # Google Drive の URL を作成
-                    file_id = photos.split(';')[0].split('id=')[-1]  # "https://drive.google.com/uc?id=<FILE_ID>" 形式を想定
-                    img_url = f"https://drive.google.com/uc?id={file_id}"
+                    # Google Driveの共有リンクを取得
+                    original_url = photos.split(';')[0]  # 画像が複数ある場合、最初の1枚を取得
+                    img_url = original_url.replace("file/d/", "uc?id=").replace("/view?usp=sharing", "")
 
             with cols[bottle]:
                 with st.container(border=True):
                     if st.button(str(wine_name), key=loc):
                         st.session_state.selected_location = loc
+                    
                     if img_url:
-                        st.image(img_url, width=80, use_container_width=True)
+                        # Streamlitの画像表示
+                        # st.image(img_url, width=80, use_container_width=True)  # これが動かない場合は下のHTMLを試す
+                        st.markdown(f'<img src="{img_url}" width="80px" style="border-radius:5px;">', unsafe_allow_html=True)
                     else:
                         st.markdown('<div style="height:135px;"></div>', unsafe_allow_html=True)
 
