@@ -109,6 +109,7 @@ def save_to_drive_pic(file_path, file_name):
     file = drive.files().create(body=file_metadata, media_body=media, fields='id').execute()
     st.write(f'File ID: {file.get("id")}')
 
+"""
 def save_to_drive_csv(file_path, file_name):
     file_metadata = {'name': file_name, 'parents': [DRIVE_FOLDER_ID]}
     media = MediaFileUpload(file_path, mimetype='text/csv', resumable=True)
@@ -117,8 +118,9 @@ def save_to_drive_csv(file_path, file_name):
         st.write(f'File ID: {file.get("id")}')
     except Exception as e:
         st.error(f"ファイルのアップロード中にエラーが発生しました: {e}")
+"""
 
-def save_to_drive_newcsv(file_name, dataframe):
+def save_to_drive_csv(file_name, dataframe):
     # DataFrameをCSV形式に変換
     csv_data = dataframe.to_csv(index=False, encoding='utf-8')
 
@@ -130,16 +132,32 @@ def save_to_drive_newcsv(file_name, dataframe):
         temp_file.write(file_stream.getvalue())
         temp_file_path = temp_file.name  # 一時ファイルのパス
 
-    # Google Driveにアップロード
-    file_metadata = {'name': file_name, 'parents': [DRIVE_FOLDER_ID]}
-    media = MediaFileUpload(temp_file_path, mimetype='text/csv', resumable=True)
 
-    try:
-        # Google Driveにファイルをアップロード
-        file = drive.files().create(body=file_metadata, media_body=media, fields='id').execute()
-        st.write(f"Google Driveにファイルをアップロードしました。File ID: {file.get('id')}")
-    except Exception as e:
-        st.error(f"Google Driveへのアップロード中にエラーが発生しました: {e}")
+    # Google Drive内に同じ名前のファイルが存在するか検索
+    query = f"name = '{file_name}' and '{DRIVE_FOLDER_ID}' in parents and trashed = false"
+    response = drive.files().list(q=query, fields="files(id)").execute()
+    files = response.get("files", [])
+
+    if files:
+        # 既存のファイルがある場合、上書き（更新）
+        file_id = files[0]["id"]
+        media = MediaFileUpload(temp_file_path, mimetype='text/csv', resumable=True)
+        try:
+            drive.files().update(fileId=file_id, media_body=media).execute()
+            st.write(f"Google Driveのファイルを上書き保存しました。File ID: {file_id}")
+        except Exception as e:
+            st.error(f"Google Driveへの上書き保存中にエラーが発生しました: {e}")
+    else:
+        # 新規ファイル作成
+        file_metadata = {'name': file_name, 'parents': [DRIVE_FOLDER_ID]}
+        media = MediaFileUpload(temp_file_path, mimetype='text/csv', resumable=True)
+        try:
+            file = drive.files().create(body=file_metadata, media_body=media, fields='id').execute()
+            st.write(f"Google Driveにファイルをアップロードしました。File ID: {file.get('id')}")
+        except Exception as e:
+            st.error(f"Google Driveへのアップロード中にエラーが発生しました: {e}")
+
+
 
 def list_drive_files():
     """Google Drive 内のファイルをリスト表示"""
@@ -217,7 +235,7 @@ def load_data():
         ])
 
         # csvファイルがない場合は空のcsvファイルを保存する
-        save_to_drive_newcsv(WINE_DATA_FILE, wines)
+        save_to_drive_csv(WINE_DATA_FILE, wines)
 
     # `opened_wines.csv` の読み込み
     if opened_wines_csv:
@@ -231,7 +249,7 @@ def load_data():
         opened_wines = pd.DataFrame(columns=wines.columns)
 
         # csvファイルがない場合は空のcsvファイルを保存する
-        save_to_drive_newcsv(OPENED_WINE_FILE, opened_wines)
+        save_to_drive_csv(OPENED_WINE_FILE, opened_wines)
 
     return wines, opened_wines
 
