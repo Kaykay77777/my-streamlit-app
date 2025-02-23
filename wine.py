@@ -326,6 +326,16 @@ st.write(st.session_state.opened_wines)    # 確認用
 
 st.subheader('ここまでは実行2')
 
+def convert_drive_url(shared_url):
+    """
+    Google Drive の共有URLを直接アクセス可能なURLに変換する
+    """
+    if "drive.google.com/file/d/" in shared_url:
+        file_id = shared_url.split("/d/")[1].split("/view")[0]
+        return f"https://drive.google.com/uc?id={file_id}"
+    return shared_url  # すでに適切なURLなら変更しない
+
+
 def display_wine_cellar():
     st.markdown("""
         <style>
@@ -367,18 +377,19 @@ def display_wine_cellar():
                 photos = wine_info.iloc[0]['写真']
                 if isinstance(photos, str) and photos:
                     # Google Driveの共有リンクを取得
-                    original_url = photos.split(';')[0]  # 画像が複数ある場合、最初の1枚を取得
-                    img_url = original_url.replace("file/d/", "uc?id=").replace("/view?usp=sharing", "")
+                    img_path = photos.split(';')[0]  # 最初の画像を取得
+                    img_path = convert_drive_url(img_path)  # Google Drive のURLを変換
+
+                    #original_url = photos.split(';')[0]  # 画像が複数ある場合、最初の1枚を取得
+                    #img_url = original_url.replace("file/d/", "uc?id=").replace("/view?usp=sharing", "")
 
             with cols[bottle]:
                 with st.container(border=True):
                     if st.button(str(wine_name), key=loc):
                         st.session_state.selected_location = loc
                     
-                    if img_url:
-                        # Streamlitの画像表示
-                        # st.image(img_url, width=80, use_container_width=True)  # これが動かない場合は下のHTMLを試す
-                        st.markdown(f'<img src="{img_url}" width="80px" style="border-radius:5px;">', unsafe_allow_html=True)
+                    if img_path:
+                        st.image(img_path, width=80, use_container_width=True)
                     else:
                         st.markdown('<div style="height:135px;"></div>', unsafe_allow_html=True)
 
