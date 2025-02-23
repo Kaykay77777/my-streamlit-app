@@ -394,7 +394,7 @@ def display_wine_cellar():
 
 display_wine_cellar()
 
-st.image(img_path, width=150)
+st.image("https://drive.google.com/uc?id=1--aiq2_Uf6KBg6Xqp_w1pN0ZYeBp-vt8", width=150)
 
 st.subheader('ワイン登録')
 if st.session_state.selected_location:
