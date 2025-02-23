@@ -370,7 +370,7 @@ def display_wine_cellar():
             wine_name = st.session_state.wine_locations.get(loc, "空") or "空"
             
             wine_info = st.session_state.wines[st.session_state.wines['場所'] == loc]
-            img_url = None
+            img_path = None
 
             if not wine_info.empty:
                 wine_name = wine_info.iloc[0]['ワイン名']
