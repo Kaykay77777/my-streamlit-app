@@ -18,6 +18,7 @@ import tempfile
 from io import BytesIO
 from googleapiclient.http import MediaIoBaseUpload
 import re
+import requests
 
 # Streamlit のキャッシュクリア
 st.cache_data.clear()
@@ -396,7 +397,17 @@ def display_wine_cellar():
 
 display_wine_cellar()
 
+st.write(f"表示確認1")
 st.image("https://drive.google.com/uc?id=1--aiq2_Uf6KBg6Xqp_w1pN0ZYeBp-vt8", width=150)
+
+st.write(f"表示確認2")
+url = "https://drive.google.com/uc?id=1--aiq2_Uf6KBg6Xqp_w1pN0ZYeBp-vt8"
+response = requests.get(url)
+img = Image.open(BytesIO(response.content))
+
+st.image(img, use_column_width=True)
+
+
 
 st.subheader('ワイン登録')
 if st.session_state.selected_location:
