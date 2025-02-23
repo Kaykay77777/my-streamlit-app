@@ -107,28 +107,24 @@ if login_mode == 1:
         if st.button("ログアウト"):
             logout()
 
-"""
-# ファイルのアップロード処理（Google Drive APIを使用）
-def save_to_drive_pic(file_path, file_name):
-    file_metadata = {'name': file_name, 'parents': [DRIVE_FOLDER_ID]}
-    media = MediaFileUpload(file_path, mimetype='image/jpeg', resumable=True)
-    file = drive.files().create(body=file_metadata, media_body=media, fields='id').execute()
-    st.write(f'File ID: {file.get("id")}')
 
 
-def save_to_drive_csv(file_path, file_name):
-    file_metadata = {'name': file_name, 'parents': [DRIVE_FOLDER_ID]}
-    media = MediaFileUpload(file_path, mimetype='text/csv', resumable=True)
-    try:
-        file = drive.files().create(body=file_metadata, media_body=media, fields='id').execute()
-        st.write(f'File ID: {file.get("id")}')
-    except Exception as e:
-        st.error(f"ファイルのアップロード中にエラーが発生しました: {e}")
-"""
+def is_file_already_uploaded(file_name):
+    """Google Drive上に同じ名前のファイルがあるかチェック"""
+    query = f"name = '{file_name}' and '{DRIVE_FOLDER_ID}' in parents and trashed = false"
+    response = drive.files().list(q=query, fields="files(id, name)").execute()
+    files = response.get("files", [])
+    return files[0]["id"] if files else None  # すでに存在すればIDを返す
+
 
 # ファイルのアップロード処理（Google Drive APIを使用）
 def save_to_drive_pic(file_name, image_data):
-    st.write("写真確認2.5")  # 確認用
+    """Google Driveに写真を保存（重複を避ける）"""
+    existing_file_id = is_file_already_uploaded(file_name)
+    
+    if existing_file_id:
+        st.write(f"ファイル '{file_name}' はすでにGoogle Driveに保存されています (ID: {existing_file_id})")
+        return existing_file_id  # 既存のファイルのIDを返す
 
     file_metadata = {'name': file_name, 'parents': [DRIVE_FOLDER_ID]}
     media = MediaIoBaseUpload(BytesIO(image_data), mimetype='image/jpeg', resumable=True)
@@ -399,15 +395,6 @@ def display_wine_cellar():
 
 display_wine_cellar()
 
-st.write(f"表示確認1")
-st.image("https://drive.google.com/uc?id=1--aiq2_Uf6KBg6Xqp_w1pN0ZYeBp-vt8", width=150)
-
-st.write(f"表示確認2")
-url = "https://drive.google.com/uc?id=1--aiq2_Uf6KBg6Xqp_w1pN0ZYeBp-vt8"
-response = requests.get(url)
-img = Image.open(BytesIO(response.content))
-
-st.image(img, use_container_width=True)
 
 
 
