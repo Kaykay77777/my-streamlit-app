@@ -162,9 +162,12 @@ def save_to_drive_pic(file_name, image_data):
 
     try:
         file = drive.files().create(body=file_metadata, media_body=media, fields='id, md5Checksum').execute()
+        file_id = file.get('id')
         st.write(f"Google Driveにファイルをアップロードしました。File ID: {file.get('id')}")
 
-        return file.get('id')  # 保存したファイルのIDを返す
+        # Google Drive の画像URLを生成
+        drive_url = f"https://drive.google.com/uc?id={file_id}"
+        return drive_url  # 画像URLを返す
     except Exception as e:
         st.error(f"Google Driveへのアップロード中にエラーが発生しました: {e}")
         return None
