@@ -124,7 +124,7 @@ def save_to_drive_csv(file_name, dataframe):
     # dataframeの型を確認し、データフレームであればcsv変換
     if isinstance(dataframe, str): # すでにCSVファイルならそのまま返す
          # 何もしない
-         pass      
+        csv_data = dataframe
     elif isinstance(dataframe, pd.DataFrame):  # DataFrameならCSVに変換
         # DataFrameをCSV形式に変換
         csv_data = dataframe.to_csv(index=False, encoding='utf-8')
