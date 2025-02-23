@@ -7,7 +7,7 @@
 import streamlit as st
 import pandas as pd
 from PIL import Image, ExifTags
-
+import numpy as np
 import json
 import io
 from google.oauth2 import service_account
@@ -408,12 +408,28 @@ if st.session_state.selected_location:
     # Streamlitのdate_inputで表示
     opening_date = st.date_input("抜栓日", opening_date)
 
+
+    """
     # 画像の保存処理の前に、photo_pathsを初期化
     photo_paths = existing_wine['写真'].values[0] if not existing_wine.empty else ""
 
     
     existing_photos = existing_wine['写真'].values[0] if not existing_wine.empty else ""
     existing_photo_list = existing_photos.split(';') if existing_photos else []
+    """
+
+    # existing_wineが空でないことを確認し、'写真'列の値を取得
+    photo_paths = existing_wine['写真'].values[0] if not existing_wine.empty and isinstance(existing_wine['写真'].values[0], str) else ""
+
+    # 既存の写真を取得して、空文字列またはNaNの場合は空リストにする
+    existing_photos = existing_wine['写真'].values[0] if not existing_wine.empty else ""
+
+    # NaNやNoneが含まれている場合に備えて空文字列に変換
+    existing_photos = "" if isinstance(existing_photos, float) and np.isnan(existing_photos) else existing_photos
+
+    # 文字列が存在すれば ';' で分割、なければ空リスト
+    existing_photo_list = existing_photos.split(';') if existing_photos else []
+
 
     if existing_photo_list:
         st.write("既存の写真:")
