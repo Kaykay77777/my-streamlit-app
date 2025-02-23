@@ -19,6 +19,7 @@ from io import BytesIO
 from googleapiclient.http import MediaIoBaseUpload
 import re
 import requests
+import hashlib
 
 # Streamlit のキャッシュクリア
 st.cache_data.clear()
@@ -108,33 +109,61 @@ if login_mode == 1:
             logout()
 
 
+def compress_image(image_data, max_size=(800, 800), quality=85):
+    """ 画像を圧縮する関数 """
+    img = Image.open(BytesIO(image_data))
+    
+    # 画像のリサイズ (アスペクト比維持)
+    img.thumbnail(max_size, Image.ANTIALIAS)
+    
+    # 圧縮した画像をバイトストリームに変換
+    img_io = BytesIO()
+    img.save(img_io, format="JPEG", quality=quality)
+    img_io.seek(0)
+    
+    return img_io.getvalue()  # 圧縮済みバイトデータを返す
 
-def is_file_already_uploaded(file_name):
-    """Google Drive上に同じ名前のファイルがあるかチェック"""
+def get_file_hash(image_data):
+    """ 画像データのハッシュを計算 """
+    return hashlib.md5(image_data).hexdigest()
+
+
+
+def is_file_already_uploaded(file_name, file_hash):
+    """ Google Drive に既に同じ画像が存在するか確認 """
     query = f"name = '{file_name}' and '{DRIVE_FOLDER_ID}' in parents and trashed = false"
-    response = drive.files().list(q=query, fields="files(id, name)").execute()
+    response = drive.files().list(q=query, fields="files(id, name, md5Checksum)").execute()
     files = response.get("files", [])
-    return files[0]["id"] if files else None  # すでに存在すればIDを返す
+
+    for file in files:
+        if file.get("md5Checksum") == file_hash:
+            return True  # 既に同じ画像が存在する
+    return False
 
 
 # ファイルのアップロード処理（Google Drive APIを使用）
 def save_to_drive_pic(file_name, image_data):
-    """Google Driveに写真を保存（重複を避ける）"""
-    existing_file_id = is_file_already_uploaded(file_name)
+    """ 圧縮した画像を Google Drive にアップロード（重複チェックあり） """
     
-    if existing_file_id:
-        st.write(f"ファイル '{file_name}' はすでにGoogle Driveに保存されています (ID: {existing_file_id})")
-        return existing_file_id  # 既存のファイルのIDを返す
+    # 画像を圧縮
+    compressed_data = compress_image(image_data)
+    
+    # ハッシュ値を取得
+    file_hash = get_file_hash(compressed_data)
 
+    # 既にアップロード済みか確認
+    if is_file_already_uploaded(file_name, file_hash):
+        st.write(f"既にアップロード済みの画像です: {file_name}")
+        return None  # 重複時はアップロードしない
+    
+    # Google Drive にアップロード
     file_metadata = {'name': file_name, 'parents': [DRIVE_FOLDER_ID]}
-    media = MediaIoBaseUpload(BytesIO(image_data), mimetype='image/jpeg', resumable=True)
-
-    st.write("写真確認3")  # 確認用
+    media = MediaIoBaseUpload(BytesIO(compressed_data), mimetype='image/jpeg', resumable=True)
 
     try:
-        file = drive.files().create(body=file_metadata, media_body=media, fields='id').execute()
+        file = drive.files().create(body=file_metadata, media_body=media, fields='id, md5Checksum').execute()
         st.write(f"Google Driveにファイルをアップロードしました。File ID: {file.get('id')}")
-        st.write(f'File ID: {file.get("id")}')
+        
         return file.get('id')  # 保存したファイルのIDを返す
     except Exception as e:
         st.error(f"Google Driveへのアップロード中にエラーが発生しました: {e}")
