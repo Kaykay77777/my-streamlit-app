@@ -125,12 +125,16 @@ def save_to_drive_pic(file_path, file_name):
 
     file_metadata = {'name': file_name, 'parents': [DRIVE_FOLDER_ID]}
     media = MediaFileUpload(file_path, mimetype='image/jpeg', resumable=True)
+
+    st.write("写真確認3")    # 確認用
+
     try:
         file = drive.files().create(body=file_metadata, media_body=media, fields='id').execute()
         st.write(f"Google Driveにファイルをアップロードしました。File ID: {file.get('id')}")
     except Exception as e:
         st.error(f"Google Driveへのアップロード中にエラーが発生しました: {e}")
 
+    st.write("写真確認4")    # 確認用
 
     st.write(f'File ID: {file.get("id")}')
 
