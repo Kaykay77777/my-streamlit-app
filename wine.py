@@ -546,11 +546,18 @@ if st.session_state.selected_location:
         new_photos = []
         for i, wine_image in enumerate(wine_images[:3]):
             try:
+                # 画像がBytesIOとして渡されているかをチェック
+                if isinstance(wine_image, BytesIO):
+                    image_data = wine_image.getvalue()
+                else:
+                    # wine_imageがファイルパスやURLの文字列であれば、BytesIOに変換
+                    image_data = requests.get(wine_image).content  # 画像URLからデータを取得する場合
+
                 # 画像を開いてRGBに変換
-                image = Image.open(wine_image).convert("RGB")
+                image = Image.open(BytesIO(image_data)).convert("RGB")
                 image.load()  # 画像を完全に読み込む
                 image.verify()  # 破損していないかチェック
-                image = Image.open(wine_image).convert("RGB")  # verify後は再オープン
+                image = Image.open(BytesIO(image_data)).convert("RGB")  # verify後は再オープン
 
                 st.write("写真確認1")  # 確認用
 
@@ -587,9 +594,9 @@ if st.session_state.selected_location:
 
             except OSError as e:
                 st.error(f"画像の保存中にエラーが発生しました: {e}")
+                st.write("エラーが発生した画像: ", wine_image)  # どの画像がエラーか確認
 
         photo_paths = ';'.join(existing_photo_list + new_photos) if new_photos else existing_wine["写真"].values[0] if not existing_wine.empty else ""
-
 
     if st.button('ワインを登録'):
         if not existing_wine.empty:
