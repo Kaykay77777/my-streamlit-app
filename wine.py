@@ -394,6 +394,8 @@ def display_wine_cellar():
 
 display_wine_cellar()
 
+st.image(img_path, width=150)
+
 st.subheader('ワイン登録')
 if st.session_state.selected_location:
     st.write(f"選択中の場所: {st.session_state.selected_location}")
