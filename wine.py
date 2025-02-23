@@ -17,6 +17,7 @@ from googleapiclient.http import MediaIoBaseDownload
 import tempfile
 from io import BytesIO
 from googleapiclient.http import MediaIoBaseUpload
+import re
 
 # Streamlit のキャッシュクリア
 st.cache_data.clear()
@@ -326,15 +327,14 @@ st.write(st.session_state.opened_wines)    # 確認用
 
 st.subheader('ここまでは実行2')
 
-def convert_drive_url(shared_url):
-    """
-    Google Drive の共有URLを直接アクセス可能なURLに変換する
-    """
-    if "drive.google.com/file/d/" in shared_url:
-        file_id = shared_url.split("/d/")[1].split("/view")[0]
-        return f"https://drive.google.com/uc?id={file_id}"
-    return shared_url  # すでに適切なURLなら変更しない
 
+def convert_drive_url(shared_url):
+    """Google Driveの共有リンクをダイレクトリンクに変換"""
+    match = re.search(r"file/d/([a-zA-Z0-9_-]+)", shared_url)
+    if match:
+        file_id = match.group(1)
+        return f"https://drive.google.com/uc?id={file_id}"
+    return shared_url  # 変換できなかった場合はそのまま
 
 def display_wine_cellar():
     st.markdown("""
@@ -376,12 +376,9 @@ def display_wine_cellar():
                 wine_name = wine_info.iloc[0]['ワイン名']
                 photos = wine_info.iloc[0]['写真']
                 if isinstance(photos, str) and photos:
-                    # Google Driveの共有リンクを取得
-                    img_path = photos.split(';')[0]  # 最初の画像を取得
-                    img_path = convert_drive_url(img_path)  # Google Drive のURLを変換
-
-                    #original_url = photos.split(';')[0]  # 画像が複数ある場合、最初の1枚を取得
-                    #img_url = original_url.replace("file/d/", "uc?id=").replace("/view?usp=sharing", "")
+                    # Google Driveの共有リンクを取得して変換
+                    shared_url = photos.split(';')[0]  # 最初の画像URL
+                    img_path = convert_drive_url(shared_url)
 
             with cols[bottle]:
                 with st.container(border=True):
@@ -389,6 +386,7 @@ def display_wine_cellar():
                         st.session_state.selected_location = loc
                     
                     if img_path:
+                        st.write(f"画像URL: {img_path}")  # デバッグ用にURLを表示
                         st.image(img_path, width=80, use_container_width=True)
                     else:
                         st.markdown('<div style="height:135px;"></div>', unsafe_allow_html=True)
