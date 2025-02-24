@@ -612,6 +612,8 @@ if st.session_state.selected_location:
         save_data()
         st.rerun()
 
+st.subheader("markdown表示確認")
+st.markdown('<img src="https://drive.google.com/uc?id=104rzSGgccBQf8cAUvlL302XyU3j0W2k2" width="160">', unsafe_allow_html=True)
 
 
 st.subheader("抜栓済みワインリスト")
