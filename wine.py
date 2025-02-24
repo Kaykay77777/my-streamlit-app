@@ -651,11 +651,13 @@ if not st.session_state.opened_wines.empty:
 
             for photo in photos:
                 matching_files = [f for f in file_list if f['name'] == photo]
+                st.write("matching_files:", matching_files)   #確認用
 
                 if matching_files:
                     file_id = matching_files[0]['id']
                     img_url = f"https://drive.google.com/uc?id={file_id}"  # Google Drive の埋め込みURL取得
                     img_tags += f'<img src="{img_url}" width="160"> '  # HTMLの img タグ作成
+                    st.write("img_tags:", img_tags)   #確認用
 
             return img_tags
         return ""
