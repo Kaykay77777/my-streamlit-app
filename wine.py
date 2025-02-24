@@ -162,12 +162,13 @@ def save_to_drive_pic(file_name, image_data):
 
     try:
         file = drive.files().create(body=file_metadata, media_body=media, fields='id, md5Checksum').execute()
-        file_id = file.get('id')
+        #file_id = file.get('id')
         st.write(f"Google Driveにファイルをアップロードしました。File ID: {file.get('id')}")
 
         # Google Drive の画像URLを生成
-        drive_url = f"https://drive.google.com/uc?id={file_id}"
-        return drive_url  # 画像URLを返す
+        #drive_url = f"https://drive.google.com/uc?id={file_id}"
+        #return drive_url  # 画像URLを返す
+        return file.get('id')  # 保存したファイルのIDを返す
     except Exception as e:
         st.error(f"Google Driveへのアップロード中にエラーが発生しました: {e}")
         return None
@@ -546,18 +547,10 @@ if st.session_state.selected_location:
         new_photos = []
         for i, wine_image in enumerate(wine_images[:3]):
             try:
-                # 画像がBytesIOとして渡されているかをチェック
-                if isinstance(wine_image, BytesIO):
-                    image_data = wine_image.getvalue()
-                else:
-                    # wine_imageがファイルパスやURLの文字列であれば、BytesIOに変換
-                    image_data = requests.get(wine_image).content  # 画像URLからデータを取得する場合
-
-                # 画像を開いてRGBに変換
-                image = Image.open(BytesIO(image_data)).convert("RGB")
+                image = Image.open(wine_image).convert("RGB")  # RGB変換して保存互換性を確保
                 image.load()  # 画像を完全に読み込む
                 image.verify()  # 破損していないかチェック
-                image = Image.open(BytesIO(image_data)).convert("RGB")  # verify後は再オープン
+                image = Image.open(wine_image).convert("RGB")  # verifyの後は再オープンが必要
 
                 st.write("写真確認1")  # 確認用
 
@@ -579,24 +572,22 @@ if st.session_state.selected_location:
 
                 st.write("写真確認2")  # 確認用
 
-                # 画像データを圧縮
+                # 画像データをバイナリで取得
                 img_bytes = BytesIO()
-                compressed_data = compress_image(image.tobytes())  # 圧縮処理を追加
-
-                img_bytes.write(compressed_data)  # 圧縮された画像データをバイナリストリームに書き込む
+                image.save(img_bytes, format="JPEG", quality=85, optimize=True)
                 img_bytes.seek(0)  # 読み込み位置をリセット
 
                 # Google Driveにアップロード
-                file_id = save_to_drive_pic(wine_image.name, img_bytes.getvalue())  # 圧縮後のバイトデータを渡す
+                file_id = save_to_drive_pic(wine_image.name, img_bytes.getvalue())
 
                 if file_id:
                     new_photos.append(f"https://drive.google.com/uc?id={file_id}")
 
             except OSError as e:
                 st.error(f"画像の保存中にエラーが発生しました: {e}")
-                st.write("エラーが発生した画像: ", wine_image)  # どの画像がエラーか確認
 
         photo_paths = ';'.join(existing_photo_list + new_photos) if new_photos else existing_wine["写真"].values[0] if not existing_wine.empty else ""
+
 
     if st.button('ワインを登録'):
         if not existing_wine.empty:
