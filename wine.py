@@ -510,7 +510,7 @@ if st.session_state.selected_location:
                 img_updated = Image.open(BytesIO(response_updated.content))            
 
                 st.image(img_updated, width=250)
-                st.markdown(img_updated, width=250)    #確認用
+
                 if st.button(f"削除", key=f"delete_{photo}"):
                     existing_photo_list.remove(photo)
 
@@ -617,7 +617,7 @@ st.subheader("markdown表示確認")
 st.markdown('<img src="https://drive.google.com/uc?id=104rzSGgccBQf8cAUvlL302XyU3j0W2k2" width="160">', unsafe_allow_html=True)
 st.markdown('<img src="https://drive.google.com/uc?id=104rzSGgccBQf8cAUvlL302XyU3j0W2k2" width="160"/>', unsafe_allow_html=True)
 
-st.image('<img src="https://drive.google.com/uc?id=104rzSGgccBQf8cAUvlL302XyU3j0W2k2" width="160">', unsafe_allow_html=True)
+st.image('<img src="https://drive.google.com/uc?id=104rzSGgccBQf8cAUvlL302XyU3j0W2k2" width="160">')
 
 
 st.subheader("抜栓済みワインリスト")
