@@ -543,51 +543,7 @@ if st.session_state.selected_location:
     # 画像アップロード
     wine_images = st.file_uploader("ワインの写真を最大3枚アップロード", type=['jpg', 'jpeg', 'png'], accept_multiple_files=True)
         
-    if wine_images:
-        new_photos = []
-        for i, wine_image in enumerate(wine_images[:3]):
-            try:
-                image = Image.open(wine_image).convert("RGB")  # RGB変換して保存互換性を確保
-                image.load()  # 画像を完全に読み込む
-                image.verify()  # 破損していないかチェック
-                image = Image.open(wine_image).convert("RGB")  # verifyの後は再オープンが必要
-
-                st.write("写真確認1")  # 確認用
-
-                try:
-                    exif = image._getexif()
-                    if exif:
-                        for tag, value in exif.items():
-                            tag_name = ExifTags.TAGS.get(tag, tag)
-                            if tag_name == 'Orientation':
-                                if value == 3:
-                                    image = image.rotate(180, expand=True)
-                                elif value == 6:
-                                    image = image.rotate(270, expand=True)
-                                elif value == 8:
-                                    image = image.rotate(90, expand=True)
-                                break
-                except (AttributeError, KeyError, IndexError):
-                    pass
-
-                st.write("写真確認2")  # 確認用
-
-                # 画像データをバイナリで取得
-                img_bytes = BytesIO()
-                image.save(img_bytes, format="JPEG", quality=85, optimize=True)
-                img_bytes.seek(0)  # 読み込み位置をリセット
-
-                # Google Driveにアップロード
-                file_id = save_to_drive_pic(wine_image.name, img_bytes.getvalue())
-
-                if file_id:
-                    new_photos.append(f"https://drive.google.com/uc?id={file_id}")
-
-            except OSError as e:
-                st.error(f"画像の保存中にエラーが発生しました: {e}")
-
-        photo_paths = ';'.join(existing_photo_list + new_photos) if new_photos else existing_wine["写真"].values[0] if not existing_wine.empty else ""
-
+    
 
     if st.button('ワインを登録'):
         if not existing_wine.empty:
@@ -617,6 +573,55 @@ if st.session_state.selected_location:
             st.session_state.wines = st.session_state.wines[st.session_state.wines['場所'] != st.session_state.selected_location]
         else:
             st.session_state.wines = pd.concat([st.session_state.wines, wine_info], ignore_index=True)
+        
+        if wine_images:
+            new_photos = []
+            for i, wine_image in enumerate(wine_images[:3]):
+                try:
+                    image = Image.open(wine_image).convert("RGB")  # RGB変換して保存互換性を確保
+                    image.load()  # 画像を完全に読み込む
+                    image.verify()  # 破損していないかチェック
+                    image = Image.open(wine_image).convert("RGB")  # verifyの後は再オープンが必要
+
+                    st.write("写真確認1")  # 確認用
+
+                    try:
+                        exif = image._getexif()
+                        if exif:
+                            for tag, value in exif.items():
+                                tag_name = ExifTags.TAGS.get(tag, tag)
+                                if tag_name == 'Orientation':
+                                    if value == 3:
+                                        image = image.rotate(180, expand=True)
+                                    elif value == 6:
+                                        image = image.rotate(270, expand=True)
+                                    elif value == 8:
+                                        image = image.rotate(90, expand=True)
+                                    break
+                    except (AttributeError, KeyError, IndexError):
+                        pass
+
+                    st.write("写真確認2")  # 確認用
+
+                    # 画像データをバイナリで取得
+                    img_bytes = BytesIO()
+                    image.save(img_bytes, format="JPEG", quality=85, optimize=True)
+                    img_bytes.seek(0)  # 読み込み位置をリセット
+
+                    # Google Driveにアップロード
+                    file_id = save_to_drive_pic(wine_image.name, img_bytes.getvalue())
+
+                    if file_id:
+                        new_photos.append(f"https://drive.google.com/uc?id={file_id}")
+                        st.write("new_photos:")  # 確認用
+                        st.write(new_photos)  # 確認用
+
+                except OSError as e:
+                    st.error(f"画像の保存中にエラーが発生しました: {e}")
+
+            photo_paths = ';'.join(existing_photo_list + new_photos) if new_photos else existing_wine["写真"].values[0] if not existing_wine.empty else ""
+            st.write("photo_paths:")  # 確認用
+            st.write(photo_paths)  # 確認用
         
         save_data()
         st.rerun()
