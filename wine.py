@@ -510,6 +510,7 @@ if st.session_state.selected_location:
                 img_updated = Image.open(BytesIO(response_updated.content))            
 
                 st.image(img_updated, width=250)
+                st.markdown(img_updated, width=250)    #確認用
                 if st.button(f"削除", key=f"delete_{photo}"):
                     existing_photo_list.remove(photo)
 
