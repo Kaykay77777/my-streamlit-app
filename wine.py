@@ -551,29 +551,7 @@ if st.session_state.selected_location:
         else:
             existing_data = {}
 
-        wine_info = pd.DataFrame([{
-    **existing_data,
-    'ワイン名': wine_name,
-    '年': wine_year,
-    '種類': wine_type,
-    '場所': st.session_state.selected_location,
-    '詳細情報': wine_details,
-    '写真': photo_paths,
-    '購入日': str(purchase_date) if purchase_date else '',
-    '価格': price,
-    '購入場所': purchase_place,
-    '国': wine_country,
-    '地域': wine_region,
-    '評価': wine_rating,
-    '抜栓日': str(opening_date) if opening_date else ''
-}])        
-        
-        if pd.notna(opening_date):
-            st.session_state.opened_wines = pd.concat([st.session_state.opened_wines, wine_info], ignore_index=True)
-            st.session_state.wines = st.session_state.wines[st.session_state.wines['場所'] != st.session_state.selected_location]
-        else:
-            st.session_state.wines = pd.concat([st.session_state.wines, wine_info], ignore_index=True)
-        
+        # 写真選択済みであれば、photo_pathsに追加
         if wine_images:
             new_photos = []
             for i, wine_image in enumerate(wine_images[:3]):
@@ -622,7 +600,35 @@ if st.session_state.selected_location:
             photo_paths = ';'.join(existing_photo_list + new_photos) if new_photos else existing_wine["写真"].values[0] if not existing_wine.empty else ""
             st.write("photo_paths:")  # 確認用
             st.write(photo_paths)  # 確認用
+
+
+
+
+
+        wine_info = pd.DataFrame([{
+    **existing_data,
+    'ワイン名': wine_name,
+    '年': wine_year,
+    '種類': wine_type,
+    '場所': st.session_state.selected_location,
+    '詳細情報': wine_details,
+    '写真': photo_paths,
+    '購入日': str(purchase_date) if purchase_date else '',
+    '価格': price,
+    '購入場所': purchase_place,
+    '国': wine_country,
+    '地域': wine_region,
+    '評価': wine_rating,
+    '抜栓日': str(opening_date) if opening_date else ''
+}])        
         
+        if pd.notna(opening_date):
+            st.session_state.opened_wines = pd.concat([st.session_state.opened_wines, wine_info], ignore_index=True)
+            st.session_state.wines = st.session_state.wines[st.session_state.wines['場所'] != st.session_state.selected_location]
+        else:
+            st.session_state.wines = pd.concat([st.session_state.wines, wine_info], ignore_index=True)
+        
+
         save_data()
         st.rerun()
 
