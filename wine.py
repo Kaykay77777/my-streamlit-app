@@ -571,6 +571,7 @@ if st.session_state.selected_location:
                         pass
 
                     st.write("写真確認2")  # 確認用
+                    st.write("写真確認2")  # 確認用
 
                     # 画像データをバイナリで取得
                     img_bytes = BytesIO()
