@@ -628,8 +628,19 @@ if st.session_state.selected_location:
             st.write("wine_info:")  # 確認用
             st.write(wine_info)  # 確認用
 
-            st.session_state.wines = pd.concat([st.session_state.wines, wine_info], ignore_index=True)
-            
+            #st.session_state.wines = pd.concat([st.session_state.wines, wine_info], ignore_index=True)
+
+            # 🔽 既存の `場所` に一致する行があるか確認
+            existing_index = st.session_state.wines[st.session_state.wines['場所'] == st.session_state.selected_location].index
+
+            if not existing_index.empty:
+                # 🔄 既存のデータを更新
+                for col in wine_info.columns:
+                    st.session_state.wines.loc[existing_index, col] = wine_info[col].values[0]
+            else:
+                # ➕ 新しいデータを追加
+                st.session_state.wines = pd.concat([st.session_state.wines, wine_info], ignore_index=True)
+
 
         
         st.write("写真確認3_4")  # 確認用
