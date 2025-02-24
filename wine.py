@@ -616,17 +616,19 @@ if st.session_state.selected_location:
         if pd.notna(opening_date):
             st.session_state.opened_wines = pd.concat([st.session_state.opened_wines, wine_info], ignore_index=True)
             st.session_state.wines = st.session_state.wines[st.session_state.wines['場所'] != st.session_state.selected_location]
-        else:
-            st.session_state.wines = pd.concat([st.session_state.wines, wine_info], ignore_index=True)
-            
+        else:   
             st.write("st.session_state.wines:")  # 確認用
             st.write(st.session_state.wines)  # 確認用
             st.write("wine_info:")  # 確認用
             st.write(wine_info)  # 確認用
+
+            st.session_state.wines = pd.concat([st.session_state.wines, wine_info], ignore_index=True)
+            
+
         
 
         save_data()
-        #st.rerun()
+        st.rerun()
 
 
 
