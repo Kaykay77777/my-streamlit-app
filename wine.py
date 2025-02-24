@@ -592,7 +592,7 @@ if st.session_state.selected_location:
                 except OSError as e:
                     st.error(f"画像の保存中にエラーが発生しました: {e}")
 
-            photo_paths = ';'.join(existing_photo_list + [new_photos]) if new_photos else existing_wine["写真"].values[0] if not existing_wine.empty else ""
+            photo_paths = ';'.join(existing_photo_list + new_photos) if new_photos else existing_wine["写真"].values[0] if not existing_wine.empty else ""
             st.write("photo_paths:")  # 確認用
             st.write(photo_paths)  # 確認用
 
