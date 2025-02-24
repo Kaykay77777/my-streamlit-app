@@ -520,9 +520,12 @@ if st.session_state.selected_location:
                 st.write("existing_photo_list")  # 確認用
                 st.write(existing_photo_list)  # 確認用
                 st.write("photo")  # 確認用
-                st.write(photo)  # 確認用                
+                st.write(photo)  # 確認用    
 
-                st.image(photo, width=150, use_container_width=True)
+                response_updated = requests.get(photo)
+                img_updated = Image.open(BytesIO(response_updated.content))            
+
+                st.image(img_updated, width=150, use_container_width=True)
                 if st.button(f"削除", key=f"delete_{photo}"):
                     existing_photo_list.remove(photo)
 
