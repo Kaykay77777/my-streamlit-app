@@ -345,7 +345,7 @@ def update_wine_locations():
         st.session_state.wine_locations[wine['場所']] = wine['ワイン名']
 
 st.subheader('確認用')
-st.subheader('ここまでは実行_1')
+st.subheader('ここまでは実行_2/24')
 
 
 
