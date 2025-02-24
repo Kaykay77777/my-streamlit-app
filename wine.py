@@ -164,7 +164,7 @@ def save_to_drive_pic(file_name, image_data):
         file = drive.files().create(body=file_metadata, media_body=media, fields='id, md5Checksum').execute()
         #file_id = file.get('id')
         st.write(f"Google Driveにファイルをアップロードしました。File ID: {file.get('id')}")
-    
+
         return file.get('id')  # 保存したファイルのIDを返す
     except Exception as e:
         st.error(f"Google Driveへのアップロード中にエラーが発生しました: {e}")
@@ -235,9 +235,10 @@ def list_drive_files():
     if not files:
         st.write("ファイルが見つかりませんでした。")
     else:
-        st.write("Google Drive のファイル:")
+        #st.write("Google Drive のファイル:")
         for file in files:
-            st.write(f"{file['name']} (ID: {file['id']})")
+            #st.write(f"{file['name']} (ID: {file['id']})")
+            pass
     return files
 
     
@@ -327,8 +328,8 @@ def update_wine_locations():
     for _, wine in st.session_state.wines.iterrows():
         st.session_state.wine_locations[wine['場所']] = wine['ワイン名']
 
-st.subheader('確認用')
-st.subheader('ここまでは実行_2/24')
+#st.subheader('確認用')
+#st.subheader('ここまでは実行_2/24')
 
 
 
@@ -348,12 +349,12 @@ if "wine_locations" not in st.session_state:
     st.session_state.wine_locations = {}
 
 
-st.write("wines:")    # 確認用
-st.write(st.session_state.wines)    # 確認用
-st.write("opened_wines:")    # 確認用
-st.write(st.session_state.opened_wines)    # 確認用
+#st.write("wines:")    # 確認用
+#st.write(st.session_state.wines)    # 確認用
+#st.write("opened_wines:")    # 確認用
+#st.write(st.session_state.opened_wines)    # 確認用
 
-st.subheader('ここまでは実行2')
+#st.subheader('ここまでは実行2')
 
 
 def convert_drive_url(shared_url):
@@ -421,7 +422,7 @@ def display_wine_cellar():
                         #st.image(img_path, width=80, use_container_width=True)
                         st.image(img, width=150, use_container_width=True)
                     else:
-                        st.write(f"img_pathなし")  # デバッグ用にURLを表示
+                        #st.write(f"img_pathなし")  # デバッグ用にURLを表示
                         st.markdown('<div style="height:135px;"></div>', unsafe_allow_html=True)
 
 display_wine_cellar()
@@ -622,17 +623,38 @@ if not st.session_state.opened_wines.empty:
         if isinstance(photo_str, str) and photo_str:
             photos = photo_str.split(';')
             img_tags = ""
+            st.subheader("photos")    # 確認用
+            st.subheader(photos)    # 確認用
+
             for photo in photos:
                 file_list = drive.list_drive_files()
                 if file_list:
                     file_id = file_list[0]['id']
                     img_url = f"https://drive.google.com/uc?id={file_id}"
                     img_tags += f'<img src="{img_url}" width="160">'
+                    st.image(img_url, width=250)   # 追加して画像出るか確認
             return img_tags
         return ""
 
+        for i, photo in enumerate(existing_photo_list):
+            with cols[i]:  # 横並びに配置   
+                response_updated = requests.get(photo)
+                img_updated = Image.open(BytesIO(response_updated.content))            
+
+                st.image(img_updated, width=250)
+                if st.button(f"削除", key=f"delete_{photo}"):
+                    existing_photo_list.remove(photo)
 
 
+                    if img_path:
+                        st.write(f"画像URL: {img_path}")  # デバッグ用にURLを表示
+                        response = requests.get(img_path)
+                        img = Image.open(BytesIO(response.content))
+                        #st.image(img_path, width=80, use_container_width=True)
+                        st.image(img, width=150, use_container_width=True)
+                    else:
+                        st.write(f"img_pathなし")  # デバッグ用にURLを表示
+                        st.markdown('<div style="height:135px;"></div>', unsafe_allow_html=True)
 
     # 画像の表示用にフォーマット
     df_display["写真"] = df_display["写真"].apply(image_formatter)
