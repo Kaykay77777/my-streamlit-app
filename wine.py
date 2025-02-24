@@ -164,10 +164,7 @@ def save_to_drive_pic(file_name, image_data):
         file = drive.files().create(body=file_metadata, media_body=media, fields='id, md5Checksum').execute()
         #file_id = file.get('id')
         st.write(f"Google Driveにファイルをアップロードしました。File ID: {file.get('id')}")
-
-        # Google Drive の画像URLを生成
-        #drive_url = f"https://drive.google.com/uc?id={file_id}"
-        #return drive_url  # 画像URLを返す
+    
         return file.get('id')  # 保存したファイルのIDを返す
     except Exception as e:
         st.error(f"Google Driveへのアップロード中にエラーが発生しました: {e}")
@@ -501,27 +498,13 @@ if st.session_state.selected_location:
     else:
         existing_photo_list = []  # 数値や他の型の場合、空のリストにする
 
-    """
-                    if img_path:
-                        st.write(f"画像URL: {img_path}")  # デバッグ用にURLを表示
-                        response = requests.get(img_path)
-                        img = Image.open(BytesIO(response.content))
-                        #st.image(img_path, width=80, use_container_width=True)
-                        st.image(img, width=150, use_container_width=True)
-    """
 
     if existing_photo_list:
         st.write("既存の写真:")
         updated_photo_list = existing_photo_list[:]  # 元のリストをコピー
         cols = st.columns(len(existing_photo_list))
         for i, photo in enumerate(existing_photo_list):
-            with cols[i]:  # 横並びに配置
-                #st.image(photo, width=160)
-                st.write("existing_photo_list")  # 確認用
-                st.write(existing_photo_list)  # 確認用
-                st.write("photo")  # 確認用
-                st.write(photo)  # 確認用    
-
+            with cols[i]:  # 横並びに配置   
                 response_updated = requests.get(photo)
                 img_updated = Image.open(BytesIO(response_updated.content))            
 
@@ -553,7 +536,7 @@ if st.session_state.selected_location:
                     image.verify()  # 破損していないかチェック
                     image = Image.open(wine_image).convert("RGB")  # verifyの後は再オープンが必要
 
-                    st.write("写真確認1")  # 確認用
+                    
 
                     try:
                         exif = image._getexif()
@@ -571,37 +554,27 @@ if st.session_state.selected_location:
                     except (AttributeError, KeyError, IndexError):
                         pass
 
-                    st.write("写真確認2")  # 確認用
-                    st.write("写真確認2")  # 確認用
 
                     # 画像データをバイナリで取得
                     img_bytes = BytesIO()
                     image.save(img_bytes, format="JPEG", quality=85, optimize=True)
                     img_bytes.seek(0)  # 読み込み位置をリセット
-                    st.write("写真確認2_1")  # 確認用
+                    
 
                     # Google Driveにアップロード
                     file_id = save_to_drive_pic(wine_image.name, img_bytes.getvalue())
-                    st.write("写真確認2_2")  # 確認用
+
 
                     if file_id:
                         new_photos.append(f"https://drive.google.com/uc?id={file_id}")
-                        st.write("new_photos:")  # 確認用
-                        st.write(new_photos)  # 確認用
+
 
                 except OSError as e:
                     st.error(f"画像の保存中にエラーが発生しました: {e}")
 
             photo_paths = ';'.join(existing_photo_list + new_photos) if new_photos else existing_wine["写真"].values[0] if not existing_wine.empty else ""
-            st.write("photo_paths:")  # 確認用
-            st.write(photo_paths)  # 確認用
-            st.write("new_photos:")  # 確認用
-            st.write(new_photos)  # 確認用            
+                
 
-
-
-
-        st.write("写真確認3_0")  # 確認用
         wine_info = pd.DataFrame([{
             **existing_data,
             'ワイン名': wine_name,
@@ -619,20 +592,10 @@ if st.session_state.selected_location:
             '抜栓日': str(opening_date) if opening_date else ''
         }])        
 
-        st.write("写真確認3_1")  # 確認用
-        if pd.notna(opening_date):
-            st.write("写真確認3_2")  # 確認用
+        if pd.notna(opening_date):  
             st.session_state.opened_wines = pd.concat([st.session_state.opened_wines, wine_info], ignore_index=True)
             st.session_state.wines = st.session_state.wines[st.session_state.wines['場所'] != st.session_state.selected_location]
-        else:   
-            st.write("写真確認3_3")  # 確認用
-            st.write("st.session_state.wines:")  # 確認用
-            st.write(st.session_state.wines)  # 確認用
-            st.write("wine_info:")  # 確認用
-            st.write(wine_info)  # 確認用
-
-            #st.session_state.wines = pd.concat([st.session_state.wines, wine_info], ignore_index=True)
-
+        else:       
             # 🔽 既存の `場所` に一致する行があるか確認
             existing_index = st.session_state.wines[st.session_state.wines['場所'] == st.session_state.selected_location].index
 
@@ -645,8 +608,6 @@ if st.session_state.selected_location:
                 st.session_state.wines = pd.concat([st.session_state.wines, wine_info], ignore_index=True)
 
 
-        
-        st.write("写真確認3_4")  # 確認用
         save_data()
         st.rerun()
 
