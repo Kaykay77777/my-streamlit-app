@@ -646,6 +646,8 @@ if not st.session_state.opened_wines.empty:
             img_tags = ""
 
             file_list = list_drive_files()
+            st.write("Google Drive ファイル一覧:", file_list)   #確認用
+
 
             for photo in photos:
                 matching_files = [f for f in file_list if f['name'] == photo]
