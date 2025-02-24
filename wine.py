@@ -576,9 +576,11 @@ if st.session_state.selected_location:
                     img_bytes = BytesIO()
                     image.save(img_bytes, format="JPEG", quality=85, optimize=True)
                     img_bytes.seek(0)  # 読み込み位置をリセット
+                    st.write("写真確認2_1")  # 確認用
 
                     # Google Driveにアップロード
                     file_id = save_to_drive_pic(wine_image.name, img_bytes.getvalue())
+                    st.write("写真確認2_2")  # 確認用
 
                     if file_id:
                         new_photos.append(f"https://drive.google.com/uc?id={file_id}")
@@ -595,7 +597,7 @@ if st.session_state.selected_location:
 
 
 
-
+        st.write("写真確認3_0")  # 確認用
         wine_info = pd.DataFrame([{
             **existing_data,
             'ワイン名': wine_name,
@@ -612,7 +614,7 @@ if st.session_state.selected_location:
             '評価': wine_rating,
             '抜栓日': str(opening_date) if opening_date else ''
         }])        
-        
+
         st.write("写真確認3_1")  # 確認用
         if pd.notna(opening_date):
             st.write("写真確認3_2")  # 確認用
@@ -629,7 +631,7 @@ if st.session_state.selected_location:
             
 
         
-
+        st.write("写真確認3_4")  # 確認用
         save_data()
         st.rerun()
 
