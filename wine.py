@@ -640,7 +640,7 @@ if not st.session_state.opened_wines.empty:
                 if matching_files:
                     file_id = matching_files[0]['id']
                     img_url = f"https://drive.google.com/uc?id={file_id}"  # Google Drive の埋め込みURL取得
-                    img_tags += f'<iframe src="{img_url}" width="160">, unsafe_allow_html=True '  # HTMLのタグ作成
+                    img_tags += f'<iframe src="{img_url}" width="30">, unsafe_allow_html=True '  # HTMLのタグ作成
                     #st.write("img_tags:", img_tags)   #確認用
 
 
