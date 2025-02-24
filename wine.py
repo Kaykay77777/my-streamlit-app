@@ -515,17 +515,11 @@ if st.session_state.selected_location:
         updated_photo_list = existing_photo_list[:]  # 元のリストをコピー
         cols = st.columns(len(existing_photo_list))
         for i, photo in enumerate(existing_photo_list):
-            with cols[i]:  # 横並びに配置
-                #st.image(photo, width=160)
-                st.write("existing_photo_list")  # 確認用
-                st.write(existing_photo_list)  # 確認用
-                st.write("photo")  # 確認用
-                st.write(photo)  # 確認用    
-
+            with cols[i]:  # 横並びに配置   
                 response_updated = requests.get(photo)
                 img_updated = Image.open(BytesIO(response_updated.content))            
 
-                st.image(img_updated, width=150)
+                st.image(img_updated, width=250)
                 if st.button(f"削除", key=f"delete_{photo}"):
                     existing_photo_list.remove(photo)
 
