@@ -619,6 +619,9 @@ st.markdown('<img src="https://drive.google.com/uc?id=104rzSGgccBQf8cAUvlL302XyU
 st.markdown('<iframe src="https://drive.google.com/file/d/104rzSGgccBQf8cAUvlL302XyU3j0W2k2/preview" width="160" height="160"></iframe>',
     unsafe_allow_html=True
 )
+st.markdown('<iframe src="https://drive.google.com/file/d/104rzSGgccBQf8cAUvlL302XyU3j0W2k2/preview" width="160" height="120"></iframe>',
+    unsafe_allow_html=True
+)
 st.markdown('<img src="https://drive.google.com/uc?id=104rzSGgccBQf8cAUvlL302XyU3j0W2k2" width="160" />', unsafe_allow_html=True)
 st.write('<img src="https://drive.google.com/uc?id=104rzSGgccBQf8cAUvlL302XyU3j0W2k2" width="160"/>', unsafe_allow_html=True)
 
