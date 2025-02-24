@@ -612,11 +612,13 @@ if st.session_state.selected_location:
     '評価': wine_rating,
     '抜栓日': str(opening_date) if opening_date else ''
 }])        
-        
+        st.write("写真確認3_1")  # 確認用
         if pd.notna(opening_date):
+            st.write("写真確認3_2")  # 確認用
             st.session_state.opened_wines = pd.concat([st.session_state.opened_wines, wine_info], ignore_index=True)
             st.session_state.wines = st.session_state.wines[st.session_state.wines['場所'] != st.session_state.selected_location]
         else:   
+            st.write("写真確認3_3")  # 確認用
             st.write("st.session_state.wines:")  # 確認用
             st.write(st.session_state.wines)  # 確認用
             st.write("wine_info:")  # 確認用
