@@ -631,10 +631,10 @@ if not st.session_state.opened_wines.empty:
                 if file_list:
                     file_id = file_list[0]['id']
                     img_url = f"https://drive.google.com/uc?id={file_id}"
-                    #img_tags += f'<img src="{img_url}" width="160">'
-                    response = requests.get(img_url)
-                    img = Image.open(BytesIO(response.content))                         
-                    st.image(img, width=250)   # 追加して画像出るか確認
+                    img_tags += f'<img src="{img_url}" width="160">'
+                    #response = requests.get(img_url)
+                    #img = Image.open(BytesIO(response.content))                         
+                    #st.image(img, width=250)   # 追加して画像出るか確認
             return img_tags
         return ""
 
