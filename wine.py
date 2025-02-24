@@ -627,7 +627,7 @@ if not st.session_state.opened_wines.empty:
             st.subheader(photos)    # 確認用
 
             for photo in photos:
-                file_list = drive.list_drive_files()
+                file_list = list_drive_files()
                 if file_list:
                     file_id = file_list[0]['id']
                     img_url = f"https://drive.google.com/uc?id={file_id}"
@@ -637,26 +637,7 @@ if not st.session_state.opened_wines.empty:
                     st.image(img, width=250)   # 追加して画像出るか確認
             return img_tags
         return ""
-
-        for i, photo in enumerate(existing_photo_list):
-            with cols[i]:  # 横並びに配置   
-                response_updated = requests.get(photo)
-                img_updated = Image.open(BytesIO(response_updated.content))            
-
-                st.image(img_updated, width=250)
-                if st.button(f"削除", key=f"delete_{photo}"):
-                    existing_photo_list.remove(photo)
-
-
-                    if img_path:
-                        st.write(f"画像URL: {img_path}")  # デバッグ用にURLを表示
-                        response = requests.get(img_path)
-                        img = Image.open(BytesIO(response.content))
-                        #st.image(img_path, width=80, use_container_width=True)
-                        st.image(img, width=150, use_container_width=True)
-                    else:
-                        st.write(f"img_pathなし")  # デバッグ用にURLを表示
-                        st.markdown('<div style="height:135px;"></div>', unsafe_allow_html=True)
+    
 
     # 画像の表示用にフォーマット
     df_display["写真"] = df_display["写真"].apply(image_formatter)
