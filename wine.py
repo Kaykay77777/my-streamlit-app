@@ -618,6 +618,7 @@ st.subheader("抜栓済みワインリスト")
 if not st.session_state.opened_wines.empty:
     df_display = st.session_state.opened_wines.copy()
 
+    """
     # 画像をHTMLで表示する関数
     def image_formatter(photo_str):
         if isinstance(photo_str, str) and photo_str:
@@ -637,7 +638,25 @@ if not st.session_state.opened_wines.empty:
                     #st.image(img, width=250)   # 追加して画像出るか確認
             return img_tags
         return ""
+    """
+    # 画像をHTMLタグで表示する関数
+    def image_formatter(photo_str):
+        if isinstance(photo_str, str) and photo_str:
+            photos = photo_str.split(';')
+            img_tags = ""
 
+            file_list = list_drive_files()
+
+            for photo in photos:
+                matching_files = [f for f in file_list if f['name'] == photo]
+
+                if matching_files:
+                    file_id = matching_files[0]['id']
+                    img_url = f"https://drive.google.com/uc?id={file_id}"  # Google Drive の埋め込みURL取得
+                    img_tags += f'<img src="{img_url}" width="160"> '  # HTMLの img タグ作成
+
+            return img_tags
+        return ""
 
     # 画像の表示用にフォーマット
     df_display["写真"] = df_display["写真"].apply(image_formatter)
