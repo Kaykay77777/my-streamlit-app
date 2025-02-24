@@ -172,21 +172,7 @@ def save_to_drive_pic(file_name, image_data):
     except Exception as e:
         st.error(f"Google Driveへのアップロード中にエラーが発生しました: {e}")
         return None
-    
-    file_metadata = {'name': file_name, 'parents': [DRIVE_FOLDER_ID]}
-    media = MediaIoBaseUpload(BytesIO(image_data), mimetype='image/jpeg', resumable=True)
-
-    st.write("写真確認3")  # 確認用
-
-    try:
-        file = drive.files().create(body=file_metadata, media_body=media, fields='id').execute()
-        st.write(f"Google Driveにファイルをアップロードしました。File ID: {file.get('id')}")
-        st.write(f'File ID: {file.get("id")}')
-        return file.get('id')  # 保存したファイルのIDを返す
-    except Exception as e:
-        st.error(f"Google Driveへのアップロード中にエラーが発生しました: {e}")
-        return None
-    
+        
     
 
 def save_to_drive_csv(file_name, dataframe):
@@ -436,7 +422,7 @@ def display_wine_cellar():
                         response = requests.get(img_path)
                         img = Image.open(BytesIO(response.content))
                         #st.image(img_path, width=80, use_container_width=True)
-                        st.image(img, width=150)#, use_container_width=True)
+                        st.image(img, width=150, use_container_width=True)
                     else:
                         st.write(f"img_pathなし")  # デバッグ用にURLを表示
                         st.markdown('<div style="height:135px;"></div>', unsafe_allow_html=True)
@@ -515,7 +501,12 @@ if st.session_state.selected_location:
     else:
         existing_photo_list = []  # 数値や他の型の場合、空のリストにする
 
-
+                    if img_path:
+                        st.write(f"画像URL: {img_path}")  # デバッグ用にURLを表示
+                        response = requests.get(img_path)
+                        img = Image.open(BytesIO(response.content))
+                        #st.image(img_path, width=80, use_container_width=True)
+                        st.image(img, width=150, use_container_width=True)
 
 
     if existing_photo_list:
@@ -524,7 +515,13 @@ if st.session_state.selected_location:
         cols = st.columns(len(existing_photo_list))
         for i, photo in enumerate(existing_photo_list):
             with cols[i]:  # 横並びに配置
-                st.image(photo, width=160)
+                #st.image(photo, width=160)
+                st.write("existing_photo_list")  # 確認用
+                st.write(existing_photo_list)  # 確認用
+                st.write("photo")  # 確認用
+                st.write(photo)  # 確認用                
+
+                st.image(photo, width=150, use_container_width=True)
                 if st.button(f"削除", key=f"delete_{photo}"):
                     existing_photo_list.remove(photo)
 
