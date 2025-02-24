@@ -648,7 +648,21 @@ if not st.session_state.opened_wines.empty:
             file_list = list_drive_files()
             st.write("Google Drive ファイル一覧:", file_list)   #確認用
 
+            for photo in photos:
+                match = re.search(r"id=([^&]+)", photo)
+                photo_id = match.group(1) if match else photo  # IDを取得、なければそのまま
+                #matching_files = [f for f in file_list if f['id'] == photo]
+                matching_files = [f for f in file_list if f['id'] == photo_id]
+                st.write("matching_files:", matching_files)   #確認用
+                st.write("photo:", photo)   #確認用
 
+                if matching_files:
+                    file_id = matching_files[0]['id']
+                    img_url = f"https://drive.google.com/uc?id={file_id}"  # Google Drive の埋め込みURL取得
+                    img_tags += f'<img src="{img_url}" width="160"> '  # HTMLの img タグ作成
+                    st.write("img_tags:", img_tags)   #確認用
+
+            """
             for photo in photos:
                 matching_files = [f for f in file_list if f['id'] == photo]
                 st.write("matching_files:", matching_files)   #確認用
@@ -659,6 +673,7 @@ if not st.session_state.opened_wines.empty:
                     img_url = f"https://drive.google.com/uc?id={file_id}"  # Google Drive の埋め込みURL取得
                     img_tags += f'<img src="{img_url}" width="160"> '  # HTMLの img タグ作成
                     st.write("img_tags:", img_tags)   #確認用
+            """
 
             return img_tags
         return ""
