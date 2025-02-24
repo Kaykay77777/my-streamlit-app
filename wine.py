@@ -499,15 +499,6 @@ if st.session_state.selected_location:
     opening_date = st.date_input("抜栓日", opening_date)
 
 
-    """
-    # 画像の保存処理の前に、photo_pathsを初期化
-    photo_paths = existing_wine['写真'].values[0] if not existing_wine.empty else ""
-
-    
-    existing_photos = existing_wine['写真'].values[0] if not existing_wine.empty else ""
-    existing_photo_list = existing_photos.split(';') if existing_photos else []
-    """
-
     # existing_wineが空でないことを確認し、'写真'列の値を取得
     photo_paths = existing_wine['写真'].values[0] if not existing_wine.empty and isinstance(existing_wine['写真'].values[0], str) else ""
 
@@ -627,10 +618,15 @@ if st.session_state.selected_location:
             st.session_state.wines = st.session_state.wines[st.session_state.wines['場所'] != st.session_state.selected_location]
         else:
             st.session_state.wines = pd.concat([st.session_state.wines, wine_info], ignore_index=True)
+            
+            st.write("st.session_state.wines:")  # 確認用
+            st.write(st.session_state.wines)  # 確認用
+            st.write("wine_info:")  # 確認用
+            st.write(wine_info)  # 確認用
         
 
         save_data()
-        st.rerun()
+        #st.rerun()
 
 
 
