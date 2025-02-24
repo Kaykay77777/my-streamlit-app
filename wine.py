@@ -640,7 +640,7 @@ if not st.session_state.opened_wines.empty:
 
 
     # 画像の表示用にフォーマット
-    #df_display["写真"] = df_display["写真"].apply(image_formatter)
+    df_display["写真"] = df_display["写真"].apply(image_formatter)
 
     # HTMLを利用してデータフレームを表示
     st.markdown(df_display.to_html(escape=False, index=False), unsafe_allow_html=True)
