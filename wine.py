@@ -615,7 +615,7 @@ if st.session_state.selected_location:
 
 st.subheader("markdown表示確認")
 st.markdown('<img src="https://drive.google.com/uc?id=104rzSGgccBQf8cAUvlL302XyU3j0W2k2" width="160"></iframe>', unsafe_allow_html=True)
-st.markdown('<img src="https://drive.google.com/uc?id=104rzSGgccBQf8cAUvlL302XyU3j0W2k2" width="160"/>')
+st.markdown('<img src="https://drive.google.com/uc?id=104rzSGgccBQf8cAUvlL302XyU3j0W2k" width="160"/>', unsafe_allow_html=True)
 
 st.markdown('<img src="https://drive.google.com/uc?id=104rzSGgccBQf8cAUvlL302XyU3j0W2k2" width="160" />', unsafe_allow_html=True)
 st.write('<img src="https://drive.google.com/uc?id=104rzSGgccBQf8cAUvlL302XyU3j0W2k2" width="160"/>', unsafe_allow_html=True)
