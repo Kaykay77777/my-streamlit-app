@@ -613,46 +613,13 @@ if st.session_state.selected_location:
         save_data()
         st.rerun()
 
-st.subheader("markdown表示確認")
-st.markdown('<img src="https://drive.google.com/uc?id=104rzSGgccBQf8cAUvlL302XyU3j0W2k2" width="160"></iframe>', unsafe_allow_html=True)
-st.markdown('<img src="https://drive.google.com/uc?id=104rzSGgccBQf8cAUvlL302XyU3j0W2k2/preview" width="160"/>', unsafe_allow_html=True)
-st.markdown('<img src="https://drive.google.com/uc?id=104rzSGgccBQf8cAUvlL302XyU3j0W2k2" width="160" height="160"/>',unsafe_allow_html=True)
-st.markdown(
-    '<iframe src="https://drive.google.com/file/d/104rzSGgccBQf8cAUvlL302XyU3j0W2k2/preview" width="160" height="160" frameborder="0" style="border:none;"></iframe>',
-    unsafe_allow_html=True
-)
-st.markdown('<iframe src="https://drive.google.com/file/d/104rzSGgccBQf8cAUvlL302XyU3j0W2k2/preview" width="160" height="120"></iframe>',
-    unsafe_allow_html=True
-)
-st.markdown('<img src="https://drive.google.com/uc?id=104rzSGgccBQf8cAUvlL302XyU3j0W2k2" width="160" />', unsafe_allow_html=True)
-st.write('<img src="https://drive.google.com/uc?id=104rzSGgccBQf8cAUvlL302XyU3j0W2k2" width="160"/>', unsafe_allow_html=True)
+
 
 
 st.subheader("抜栓済みワインリスト")
 if not st.session_state.opened_wines.empty:
     df_display = st.session_state.opened_wines.copy()
-
-    """
-    # 画像をHTMLで表示する関数
-    def image_formatter(photo_str):
-        if isinstance(photo_str, str) and photo_str:
-            photos = photo_str.split(';')
-            img_tags = ""
-            st.subheader("photos")    # 確認用
-            st.subheader(photos)    # 確認用
-
-            for photo in photos:
-                file_list = list_drive_files()
-                if file_list:
-                    file_id = file_list[0]['id']
-                    img_url = f"https://drive.google.com/uc?id={file_id}"
-                    img_tags += f'<img src="{img_url}" width="160">'
-                    #response = requests.get(img_url)
-                    #img = Image.open(BytesIO(response.content))                         
-                    #st.image(img, width=250)   # 追加して画像出るか確認
-            return img_tags
-        return ""
-    """
+    
     # 画像をHTMLタグで表示する関数
     def image_formatter(photo_str):
         if isinstance(photo_str, str) and photo_str:
@@ -660,40 +627,28 @@ if not st.session_state.opened_wines.empty:
             img_tags = ""
 
             file_list = list_drive_files()
-            st.write("Google Drive ファイル一覧:", file_list)   #確認用
+            #st.write("Google Drive ファイル一覧:", file_list)   #確認用
 
             for photo in photos:
                 match = re.search(r"id=([^&]+)", photo)
                 photo_id = match.group(1) if match else photo  # IDを取得、なければそのまま
                 #matching_files = [f for f in file_list if f['id'] == photo]
                 matching_files = [f for f in file_list if f['id'] == photo_id]
-                st.write("matching_files:", matching_files)   #確認用
-                st.write("photo:", photo)   #確認用
+                #st.write("matching_files:", matching_files)   #確認用
+                #st.write("photo:", photo)   #確認用
 
                 if matching_files:
                     file_id = matching_files[0]['id']
                     img_url = f"https://drive.google.com/uc?id={file_id}"  # Google Drive の埋め込みURL取得
-                    img_tags += f'<img src="{img_url}" width="160"> '  # HTMLの img タグ作成
-                    st.write("img_tags:", img_tags)   #確認用
+                    img_tags += f'<iframe src="{img_url}" width="160">, unsafe_allow_html=True '  # HTMLのタグ作成
+                    #st.write("img_tags:", img_tags)   #確認用
 
-            """
-            for photo in photos:
-                matching_files = [f for f in file_list if f['id'] == photo]
-                st.write("matching_files:", matching_files)   #確認用
-                st.write("photo:", photo)   #確認用
-
-                if matching_files:
-                    file_id = matching_files[0]['id']
-                    img_url = f"https://drive.google.com/uc?id={file_id}"  # Google Drive の埋め込みURL取得
-                    img_tags += f'<img src="{img_url}" width="160"> '  # HTMLの img タグ作成
-                    st.write("img_tags:", img_tags)   #確認用
-            """
 
             return img_tags
         return ""
 
     # 変換前(確認用)
-    st.markdown(df_display.to_html(escape=False, index=False), unsafe_allow_html=True)
+    #st.markdown(df_display.to_html(escape=False, index=False), unsafe_allow_html=True)
 
     # 画像の表示用にフォーマット
     df_display["写真"] = df_display["写真"].apply(image_formatter)
@@ -710,4 +665,7 @@ else:
 
 # 抜栓済みの写真表示修正
 # 抜栓済みの各記録をグラフ化など
+
+#マークダウンで画像表示する場合
+#st.markdown('<iframe src="https://drive.google.com/file/d/104rzSGgccBQf8cAUvlL302XyU3j0W2k2/preview" width="160" height="120"></iframe>', unsafe_allow_html=True)
 
