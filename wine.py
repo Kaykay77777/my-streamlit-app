@@ -501,13 +501,14 @@ if st.session_state.selected_location:
     else:
         existing_photo_list = []  # 数値や他の型の場合、空のリストにする
 
+    """
                     if img_path:
                         st.write(f"画像URL: {img_path}")  # デバッグ用にURLを表示
                         response = requests.get(img_path)
                         img = Image.open(BytesIO(response.content))
                         #st.image(img_path, width=80, use_container_width=True)
                         st.image(img, width=150, use_container_width=True)
-
+    """
 
     if existing_photo_list:
         st.write("既存の写真:")
