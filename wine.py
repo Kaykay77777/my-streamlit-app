@@ -525,7 +525,7 @@ if st.session_state.selected_location:
                 response_updated = requests.get(photo)
                 img_updated = Image.open(BytesIO(response_updated.content))            
 
-                st.image(img_updated, width=150, use_container_width=True)
+                st.image(img_updated, width=150)
                 if st.button(f"削除", key=f"delete_{photo}"):
                     existing_photo_list.remove(photo)
 
