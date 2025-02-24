@@ -648,7 +648,7 @@ if not st.session_state.opened_wines.empty:
         return ""
 
     # 変換前(確認用)
-    #st.markdown(df_display.to_html(escape=False, index=False), unsafe_allow_html=True)
+    st.markdown(df_display.to_html(escape=False, index=False), unsafe_allow_html=True)
 
     # 画像の表示用にフォーマット
     df_display["写真"] = df_display["写真"].apply(image_formatter)
