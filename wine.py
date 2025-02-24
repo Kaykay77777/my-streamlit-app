@@ -163,7 +163,7 @@ def save_to_drive_pic(file_name, image_data):
     try:
         file = drive.files().create(body=file_metadata, media_body=media, fields='id, md5Checksum').execute()
         #file_id = file.get('id')
-        st.write(f"Google Driveにファイルをアップロードしました。File ID: {file.get('id')}")
+        #st.write(f"Google Driveにファイルをアップロードしました。File ID: {file.get('id')}")
 
         return file.get('id')  # 保存したファイルのIDを返す
     except Exception as e:
@@ -204,7 +204,7 @@ def save_to_drive_csv(file_name, dataframe):
         media = MediaFileUpload(temp_file_path, mimetype='text/csv', resumable=True)
         try:
             drive.files().update(fileId=file_id, media_body=media).execute()
-            st.write(f"Google Driveのファイルを上書き保存しました。File ID: {file_id}")
+            #st.write(f"Google Driveのファイルを上書き保存しました。File ID: {file_id}")
         except Exception as e:
             st.error(f"Google Driveへの上書き保存中にエラーが発生しました: {e}")
     else:
@@ -416,7 +416,7 @@ def display_wine_cellar():
                         st.session_state.selected_location = loc
                     
                     if img_path:
-                        st.write(f"画像URL: {img_path}")  # デバッグ用にURLを表示
+                        #st.write(f"画像URL: {img_path}")  # デバッグ用にURLを表示
                         response = requests.get(img_path)
                         img = Image.open(BytesIO(response.content))
                         #st.image(img_path, width=80, use_container_width=True)
@@ -631,8 +631,10 @@ if not st.session_state.opened_wines.empty:
                 if file_list:
                     file_id = file_list[0]['id']
                     img_url = f"https://drive.google.com/uc?id={file_id}"
-                    img_tags += f'<img src="{img_url}" width="160">'
-                    st.image(img_url, width=250)   # 追加して画像出るか確認
+                    #img_tags += f'<img src="{img_url}" width="160">'
+                    response = requests.get(img_url)
+                    img = Image.open(BytesIO(response.content))                         
+                    st.image(img, width=250)   # 追加して画像出るか確認
             return img_tags
         return ""
 
