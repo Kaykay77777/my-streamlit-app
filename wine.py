@@ -597,21 +597,22 @@ if st.session_state.selected_location:
 
 
         wine_info = pd.DataFrame([{
-    **existing_data,
-    'ワイン名': wine_name,
-    '年': wine_year,
-    '種類': wine_type,
-    '場所': st.session_state.selected_location,
-    '詳細情報': wine_details,
-    '写真': photo_paths,
-    '購入日': str(purchase_date) if purchase_date else '',
-    '価格': price,
-    '購入場所': purchase_place,
-    '国': wine_country,
-    '地域': wine_region,
-    '評価': wine_rating,
-    '抜栓日': str(opening_date) if opening_date else ''
-}])        
+            **existing_data,
+            'ワイン名': wine_name,
+            '年': wine_year,
+            '種類': wine_type,
+            '場所': st.session_state.selected_location,
+            '詳細情報': wine_details,
+            '写真': photo_paths,
+            '購入日': str(purchase_date) if purchase_date else '',
+            '価格': price,
+            '購入場所': purchase_place,
+            '国': wine_country,
+            '地域': wine_region,
+            '評価': wine_rating,
+            '抜栓日': str(opening_date) if opening_date else ''
+        }])        
+        
         st.write("写真確認3_1")  # 確認用
         if pd.notna(opening_date):
             st.write("写真確認3_2")  # 確認用
