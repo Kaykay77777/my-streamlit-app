@@ -652,6 +652,7 @@ if not st.session_state.opened_wines.empty:
             for photo in photos:
                 matching_files = [f for f in file_list if f['name'] == photo]
                 st.write("matching_files:", matching_files)   #確認用
+                st.write("photo:", photo)   #確認用
 
                 if matching_files:
                     file_id = matching_files[0]['id']
